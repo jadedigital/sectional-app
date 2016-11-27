@@ -1,12 +1,7 @@
 function findBy (list, value, column) {
-  var result = []
-  for (var key in list) {
-    var section = list[key]
-    if (section[column].includes(value)) {
-      result.push(section)
-    }
-  }
-  return result
+  return list.filter(function (item) {
+    return item[column].includes(value)
+  })
 }
 
 export default findBy
