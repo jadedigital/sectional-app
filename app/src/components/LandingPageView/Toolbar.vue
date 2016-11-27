@@ -12,10 +12,27 @@
           <span class="icon icon-cloud"></span>
         </button>
       </div>
-      <input type="search" id="search_input" class="form-control" placeholder="Search" v-model="query">
+      <input type="search" id="search_input" class="form-control" placeholder="Search" :value="query" @input="updateQuery">
     </div>
   </header>
 </template>
+
+<script>
+import { mapGetters } from 'vuex'
+
+export default {
+  computed: {
+    ...mapGetters({
+      query: 'queryGet'
+    })
+  },
+  methods: {
+    updateQuery (e) {
+      this.$store.commit('UPDATE_QUERY', e.target.value)
+    }
+  }
+}
+</script>
 
 <style>
 .toolbar {
@@ -48,10 +65,3 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 </style>
-
-<script>
-export default {
-  props: ['query']
-}
-
-</script>

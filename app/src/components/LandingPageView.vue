@@ -7,11 +7,11 @@
 
 <template>
   <div class="window">
-    <toolbar :query="query"></toolbar>
+    <toolbar></toolbar>
     <div class="window-content">
       <div class="pane-group">
         <sidebar></sidebar>
-        <sectiontable :query="query"></sectiontable>
+        <sectiontable></sectiontable>
       </div>
     </div>
   </div>
@@ -23,11 +23,6 @@
   import Sectiontable from './LandingPageView/Sectiontable'
 
   export default {
-    data: function () {
-      return {
-        query: 'B'
-      }
-    },
     components: {
       Toolbar,
       Sidebar,

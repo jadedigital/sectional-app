@@ -16,6 +16,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import db from './db'
 import findBy from './filters.js'
 
@@ -24,7 +25,11 @@ export default {
     sections: db.ref('HE'),
     columns: db.ref('Columns')
   },
-  props: ['query'],
+  computed: {
+    ...mapGetters({
+      query: 'queryGet'
+    })
+  },
   methods: {
     findBy
   }
