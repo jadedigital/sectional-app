@@ -1,6 +1,6 @@
 ![sectiondb](https://sectional.github.io/images/logo-alt.svg)
 
-Sectional is a tool for structural engineers that catalogues properties of structural shapes. It's searchable, sortable, customizable, and lets you create and store your own custom shapes.
+Sectional is a tool for structural engineers that catalogues properties of structural shapes. It's searchable, sortable, customizable, and lets you create and store your own custom sections.
 
 Visit [sectional.github.io](https://sectional.github.io) to learn more.
 
