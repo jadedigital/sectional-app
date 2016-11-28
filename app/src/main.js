@@ -12,6 +12,7 @@ import 'photon/dist/fonts/photon-entypo.eot'
 import 'photon/dist/fonts/photon-entypo.svg'
 import 'photon/dist/fonts/photon-entypo.ttf'
 import 'photon/dist/fonts/photon-entypo.woff'
+import 'font-awesome/css/font-awesome.min.css'
 
 Vue.use(Electron)
 Vue.use(Resource)

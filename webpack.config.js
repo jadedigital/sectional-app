@@ -65,7 +65,8 @@ let config = {
       template: './app/index.ejs',
       title: settings.name
     }),
-    new webpack.NoErrorsPlugin()
+    new webpack.NoErrorsPlugin(),
+    new webpack.IgnorePlugin(/vertx/)
   ],
   output: {
     filename: '[name].js',
