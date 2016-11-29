@@ -9,7 +9,7 @@
         </tr>
       </thead>
       <tbody class="vu-body">
-        <tr class="vu-row" v-for="item in findBy(sections, query, 'Designation')">
+        <tr class="vu-row" v-for="item in tableFilter">
           <td v-for="head in columns">{{item[head[".key"]]}}</td>
         </tr>
       </tbody>
@@ -20,7 +20,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import db from './db'
-import findBy from './filters.js'
+// import findBy from './filters.js'
 import Sortarrows from './Sectiontable/Sortarrows'
 
 export default {
@@ -31,16 +31,33 @@ export default {
   computed: {
     ...mapGetters({
       query: 'queryGet',
-      sortkey: 'sortkeyGet'
-    })
+      sortkey: 'sortkeyGet',
+      sortorders: 'sortOrdersGet',
+      searchcolumn: 'searchcolumnget'
+    }),
+    tableFilter: function () {
+      var list = this.findBy(this.sections, this.query, this.searchcolumn)
+      list = this.orderBy(list, this.sortorders[this.sortkey], this.sortkey)
+      return list
+    }
   },
   methods: {
-    findBy,
+    // findBy,
     initialorder: function () {
       this.$store.commit('INITIALIZE', this.columns)
     },
     sortBy (column) {
       this.$store.commit('COLUMN_SORT', column['.key'])
+    },
+    findBy: function (list, value, column) {
+      return list.filter(function (item) {
+        return item[column].includes(value)
+      })
+    },
+    orderBy: function (list, order, column) {
+      return list.sort(function (a, b) {
+        return order * (a[column] < b[column])
+      })
     }
   },
   components: {

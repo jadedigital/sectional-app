@@ -10,6 +10,7 @@ export default new Vuex.Store({
   state: {
     query: '',
     sortkey: 'Designation',
+    searchcolumn: 'Designation',
     sortOrders: {
       Designation: 1,
       Mass: 1,
@@ -23,7 +24,6 @@ export default new Vuex.Store({
     [COLUMN_SORT] (state, columnPayload) {
       state.sortkey = columnPayload
       state.sortOrders[columnPayload] = state.sortOrders[columnPayload] * -1
-      console.log(state.sortOrders[columnPayload])
     },
     [INITIALIZE] (state, columnsPayload) {
       // var sortOrdersVar = {}
