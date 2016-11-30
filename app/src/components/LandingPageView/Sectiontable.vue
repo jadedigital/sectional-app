@@ -20,7 +20,6 @@
 <script>
 import { mapGetters } from 'vuex'
 import db from './db'
-// import findBy from './filters.js'
 import Sortarrows from './Sectiontable/Sortarrows'
 
 export default {
@@ -36,13 +35,17 @@ export default {
       searchcolumn: 'searchcolumnget'
     }),
     tableFilter: function () {
-      var list = this.findBy(this.sections, this.query, this.searchcolumn)
-      list = this.orderBy(list, this.sortorders[this.sortkey], this.sortkey)
+      var list = this.sections
+      if (this.query) {
+        list = this.findBy(list, this.query, this.searchcolumn)
+      }
+      if (this.sortkey) {
+        list = this.orderBy(list, this.sortorders[this.sortkey], this.sortkey)
+      }
       return list
     }
   },
   methods: {
-    // findBy,
     initialorder: function () {
       this.$store.commit('INITIALIZE', this.columns)
     },
@@ -51,12 +54,14 @@ export default {
     },
     findBy: function (list, value, column) {
       return list.filter(function (item) {
-        return item[column].includes(value)
+        return String(item[column]).toLowerCase().includes(value.toLowerCase())
       })
     },
     orderBy: function (list, order, column) {
       return list.sort(function (a, b) {
-        return order * (a[column] < b[column])
+        a = a[column]
+        b = b[column]
+        return (a === b ? 0 : a > b ? 1 : -1) * order
       })
     }
   },
