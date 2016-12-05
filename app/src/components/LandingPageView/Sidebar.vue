@@ -1,12 +1,32 @@
 <template>
   <div class="pane-sm sidebar">
     <nav id="section_select" class="nav-group">
-      <h5 class="nav-group-title">Canadian<span class="expand"></span></h5>
-      <span><a class="nav-group-item active">item 1</a></span>
-      <h5 class="nav-group-title">European<span class="expand"></span></h5>
-      <span><a class="nav-group-item">item 1</a></span>
-      <h5 class="nav-group-title">British<span class="expand"></span></h5>
-      <span><a class="nav-group-item">item 1</a></span>
+      <div v-for="family in sidebar">
+        <h5 class="nav-group-title">{{family['.key']}}<span class="expand"></span></h5>
+        <span v-for="(item, key) in family"><a v-on:click="activatelist(key)" v-bind:class="{active: activelist == key}" class="nav-group-item">{{item['displayname']}}</a></span>
+      </div>
     </nav>
   </div>
 </template>
+
+<script>
+import { mapGetters } from 'vuex'
+import db from './db'
+
+export default {
+  firebase: {
+    sidebar: db.ref('Sidebar')
+  },
+  computed: {
+    ...mapGetters({
+      activelist: 'activelistget'
+    })
+  },
+  methods: {
+    activatelist (item) {
+      console.log(JSON.stringify(this.sidebar))
+      this.$store.commit('ACTIVATE_LIST', item)
+    }
+  }
+}
+</script>

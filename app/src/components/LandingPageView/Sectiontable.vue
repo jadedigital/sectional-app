@@ -3,14 +3,14 @@
     <table class="vu-table">
       <thead>
         <tr>
-          <th v-for="head in columns" v-on:click="sortBy(head)" v-bind:class="{active: sortkey == head['.key']}" nowrap>{{head['displayname']}}
-            <sortarrows v-bind:arrowcolumn="head"></sortarrows>
+          <th v-for="(head, key) in columns" v-on:click="sortBy(key)" v-bind:class="{active: sortkey == key}" nowrap>{{head['displayname']}}
+            <sortarrows v-bind:arrowcolumn="key"></sortarrows>
           </th>
         </tr>
       </thead>
       <tbody class="vu-body">
         <tr class="vu-row" v-for="item in tableFilter">
-          <td v-for="head in columns">{{item[head[".key"]]}}</td>
+          <td v-for="(head, key) in columns">{{item[key]}}</td>
         </tr>
       </tbody>
     </table>
@@ -24,18 +24,25 @@ import Sortarrows from './Sectiontable/Sortarrows'
 
 export default {
   firebase: {
-    sections: db.ref('HE'),
-    columns: db.ref('Columns')
+    sections: {
+      source: db.ref('Sections'),
+      asObject: true
+    },
+    columns: {
+      source: db.ref('Columns'),
+      asObject: true
+    }
   },
   computed: {
     ...mapGetters({
       query: 'queryGet',
       sortkey: 'sortkeyGet',
       sortorders: 'sortOrdersGet',
-      searchcolumn: 'searchcolumnget'
+      searchcolumn: 'searchcolumnget',
+      activelist: 'activelistget'
     }),
     tableFilter: function () {
-      var list = this.sections
+      var list = this.sections[this.activelist]
       if (this.query) {
         list = this.findBy(list, this.query, this.searchcolumn)
       }
@@ -50,7 +57,8 @@ export default {
       this.$store.commit('INITIALIZE', this.columns)
     },
     sortBy (column) {
-      this.$store.commit('COLUMN_SORT', column['.key'])
+      console.log(JSON.stringify(this.columns))
+      this.$store.commit('COLUMN_SORT', column)
     },
     findBy: function (list, value, column) {
       return list.filter(function (item) {

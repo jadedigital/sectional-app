@@ -2,13 +2,14 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import * as actions from './actions'
 import * as getters from './getters'
-import { UPDATE_QUERY, COLUMN_SORT, INITIALIZE } from './mutation-types'
+import { UPDATE_QUERY, COLUMN_SORT, INITIALIZE, ACTIVATE_LIST } from './mutation-types'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
     query: '',
+    activelist: 'HE',
     sortkey: 'Designation',
     searchcolumn: 'Designation',
     sortOrders: {
@@ -25,14 +26,17 @@ export default new Vuex.Store({
       state.sortkey = columnPayload
       state.sortOrders[columnPayload] = state.sortOrders[columnPayload] * -1
     },
+    [ACTIVATE_LIST] (state, listPayload) {
+      state.activelist = listPayload
+    },
     [INITIALIZE] (state, columnsPayload) {
       // var sortOrdersVar = {}
-      columnsPayload.forEach(function (key) {
-        console.log('placeholder')
+      // columnsPayload.forEach(function (key) {
+      console.log('placeholder')
         // sortOrdersVar[key['.key']] = 1
         // this isn't getting called possibly because firebase data isn't loaded yet?
         // for now, hardcode column sort numbers
-      })
+      // })
       // state.sortOrders = sortOrdersVar
     }
   },
