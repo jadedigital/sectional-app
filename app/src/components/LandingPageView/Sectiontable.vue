@@ -3,14 +3,14 @@
     <table class="vu-table">
       <thead>
         <tr>
-          <th v-for="(head, key) in columns" v-on:click="sortBy(key)" v-bind:class="{active: sortkey == key}" nowrap>{{head['displayname']}}
-            <sortarrows v-bind:arrowcolumn="key"></sortarrows>
+          <th v-for="head in columns" v-on:click="sortBy(head)" v-bind:class="{active: sortkey == head['.key']}" nowrap>{{head['displayname']}}
+            <sortarrows v-bind:arrowcolumn="head"></sortarrows>
           </th>
         </tr>
       </thead>
       <tbody class="vu-body">
         <tr class="vu-row" v-for="item in tableFilter">
-          <td v-for="(head, key) in columns">{{item[key]}}</td>
+          <td v-for="head in columns">{{item[head[".key"]]}}</td>
         </tr>
       </tbody>
     </table>
@@ -28,10 +28,7 @@ export default {
       source: db.ref('Sections'),
       asObject: true
     },
-    columns: {
-      source: db.ref('Columns'),
-      asObject: true
-    }
+    columns: db.ref('Columns')
   },
   computed: {
     ...mapGetters({
@@ -57,8 +54,7 @@ export default {
       this.$store.commit('INITIALIZE', this.columns)
     },
     sortBy (column) {
-      console.log(JSON.stringify(this.columns))
-      this.$store.commit('COLUMN_SORT', column)
+      this.$store.commit('COLUMN_SORT', column['.key'])
     },
     findBy: function (list, value, column) {
       return list.filter(function (item) {

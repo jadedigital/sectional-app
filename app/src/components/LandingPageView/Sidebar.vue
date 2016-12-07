@@ -24,7 +24,7 @@ export default {
   },
   methods: {
     activatelist (item) {
-      console.log(JSON.stringify(this.sidebar))
+      console.log(JSON.stringify(item))
       this.$store.commit('ACTIVATE_LIST', item)
     }
   }
