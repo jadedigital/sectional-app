@@ -5,6 +5,11 @@ export default [
     component: require('components/LandingPageView')
   },
   {
+    path: '/custom',
+    name: 'custom-section',
+    component: require('components/CustomSection')
+  },
+  {
     path: '*',
     redirect: '/'
   }
