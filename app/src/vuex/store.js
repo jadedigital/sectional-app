@@ -12,11 +12,7 @@ export default new Vuex.Store({
     activelist: 'HE',
     sortkey: 'Designation',
     searchcolumn: 'Designation',
-    sortOrders: {
-      Designation: 1,
-      Mass: 1,
-      SectionArea: 1
-    }
+    sortOrders: {}
   },
   mutations: {
     [UPDATE_QUERY] (state, queryPayload) {
@@ -30,14 +26,11 @@ export default new Vuex.Store({
       state.activelist = listPayload
     },
     [INITIALIZE] (state, columnsPayload) {
-      // var sortOrdersVar = {}
-      // columnsPayload.forEach(function (key) {
-      console.log('placeholder')
-        // sortOrdersVar[key['.key']] = 1
-        // this isn't getting called possibly because firebase data isn't loaded yet?
-        // for now, hardcode column sort numbers
-      // })
-      // state.sortOrders = sortOrdersVar
+      var sortOrdersVar = {}
+      columnsPayload.forEach(function (key) {
+        sortOrdersVar[key['.key']] = 1
+      })
+      state.sortOrders = sortOrdersVar
     }
   },
   actions,

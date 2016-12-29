@@ -73,7 +73,9 @@ export default {
     Sortarrows
   },
   mounted: function () {
-    this.initialorder()
+    this.$nextTick(function () {
+      setTimeout(this.initialorder, 2000)
+    })
   }
 }
 </script>
