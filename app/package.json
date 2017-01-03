@@ -1,6 +1,6 @@
 {
   "name": "sectiondb",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A database for structural steel sections",
   "main": "electron.js",
   "dependencies": {
