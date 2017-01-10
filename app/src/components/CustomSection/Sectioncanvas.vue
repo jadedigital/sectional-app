@@ -21,7 +21,7 @@
           </div>
         </div>
         <div class="addcoord">
-          <span class="coordIndex fa fa-plus"></span>
+          <span class="coordIndex fa fa-plus" v-on:click="callstorage()"></span>
           <span class="coordwrap">
             <input class="coordx" type="number" placeholder="0"><input class="coordy" type="number" placeholder="0">
           </span>
@@ -36,6 +36,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import storage from 'electron-json-storage'
 
 export default {
   computed: {
@@ -112,11 +113,21 @@ export default {
     },
     deactiveCoord () {
       this.drawCanvas()
+    },
+    callstorage () {
+      storage.get('foobar', function (error, data) {
+        if (error) throw error
+
+        console.log(data)
+      })
     }
   },
   mounted: function () {
     this.$nextTick(function () {
       this.drawCanvas()
+      storage.set('foobar', { foo: 'bar' }, function (error) {
+        if (error) throw error
+      })
     })
   }
 }
