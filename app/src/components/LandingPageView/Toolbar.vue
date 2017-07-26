@@ -2,12 +2,12 @@
   <header class="toolbar toolbar-header">  
     <div class="toolbar-actions">
       <div class="btn-group">
-        <button class="btn btn-default active">
-          <span class="icon icon-home"></span>
-        </button>
-        <button class="btn btn-default">
-          <span class="icon icon-folder"></span>
-        </button>
+        <router-link class="btn btn-default active" to="/">
+          <span class="fa fa-database"></span>
+        </router-link>
+        <router-link class="btn btn-default" to="/custom">
+          <span class="fa fa-object-group"></span>
+        </router-link>
         <button class="btn btn-default">
           <span class="icon icon-cloud"></span>
         </button>

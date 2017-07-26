@@ -3,14 +3,14 @@
     <table class="vu-table">
       <thead>
         <tr>
-          <th v-for="(head, key) in columns" v-on:click="sortBy(key)" v-bind:class="{active: sortkey == key}" nowrap>{{head['displayname']}}
-            <sortarrows v-bind:arrowcolumn="key"></sortarrows>
+          <th v-for="head in localColumns" v-on:click="sortBy(head)" v-bind:class="{active: sortkey == head['.key']}" nowrap>{{head['displayname']}}
+            <sortarrows v-bind:arrowcolumn="head"></sortarrows>
           </th>
         </tr>
       </thead>
       <tbody class="vu-body">
         <tr class="vu-row" v-for="item in tableFilter">
-          <td v-for="(head, key) in columns">{{item[key]}}</td>
+          <td v-for="head in localColumns">{{item[head[".key"]]}}</td>
         </tr>
       </tbody>
     </table>
@@ -20,18 +20,22 @@
 <script>
 import { mapGetters } from 'vuex'
 import db from './db'
+import storage from 'electron-json-storage'
 import Sortarrows from './Sectiontable/Sortarrows'
 
 export default {
+  data () {
+    return {
+      localSections: {},
+      localColumns: {}
+    }
+  },
   firebase: {
     sections: {
       source: db.ref('Sections'),
       asObject: true
     },
-    columns: {
-      source: db.ref('Columns'),
-      asObject: true
-    }
+    columns: db.ref('Columns')
   },
   computed: {
     ...mapGetters({
@@ -42,7 +46,7 @@ export default {
       activelist: 'activelistget'
     }),
     tableFilter: function () {
-      var list = this.sections[this.activelist]
+      var list = this.localSections[this.activelist]
       if (this.query) {
         list = this.findBy(list, this.query, this.searchcolumn)
       }
@@ -53,12 +57,11 @@ export default {
     }
   },
   methods: {
-    initialorder: function () {
-      this.$store.commit('INITIALIZE', this.columns)
+    initialOrder: function () {
+      this.$store.commit('INITIALIZE', this.localColumns)
     },
     sortBy (column) {
-      console.log(JSON.stringify(this.columns))
-      this.$store.commit('COLUMN_SORT', column)
+      this.$store.commit('COLUMN_SORT', column['.key'])
     },
     findBy: function (list, value, column) {
       return list.filter(function (item) {
@@ -71,13 +74,57 @@ export default {
         b = b[column]
         return (a === b ? 0 : a > b ? 1 : -1) * order
       })
+    },
+    loadLocalDB: function () {
+      var self = this
+      storage.get('section_data', function (error, data) {
+        if (error) throw error
+
+        self.localSections = data
+      })
+
+      storage.get('column_data', function (error, data) {
+        if (error) throw error
+
+        self.localColumns = data
+      })
+      console.log('Local data loaded')
+    },
+    loadRemoteDB: function () {
+      var sectionsVar = this.sections
+      var columnsVar = this.columns
+      this.localSections = sectionsVar
+      this.localColumns = columnsVar
+
+      storage.set('section_data', sectionsVar, function (error) {
+        if (error) throw error
+      })
+      storage.set('column_data', columnsVar, function (error) {
+        if (error) throw error
+      })
+      console.log('Remote data loaded')
     }
   },
   components: {
     Sortarrows
   },
   mounted: function () {
-    this.initialorder()
+    this.$nextTick(function () {
+      var self = this
+      storage.has('section_data', function (error, hasKey) {
+        if (error) throw error
+
+        if (hasKey) {
+          console.log('Local data available. Loading...')
+          self.loadLocalDB()
+          setTimeout(self.initialOrder, 2000)
+        } else {
+          console.log('No data. Loading from server...')
+          setTimeout(self.loadRemoteDB, 2000)
+          setTimeout(self.initialOrder, 2000)
+        }
+      })
+    })
   }
 }
 </script>

@@ -1,6 +1,6 @@
 {
-  "name": "sectiondb",
-  "version": "0.0.0",
+  "name": "sectional",
+  "version": "0.1.0",
   "description": "A database for structural steel sections",
   "scripts": {
     "build": "node tasks/release.js",

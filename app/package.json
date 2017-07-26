@@ -1,9 +1,10 @@
 {
-  "name": "sectiondb",
-  "version": "0.0.0",
+  "name": "sectional",
+  "version": "0.1.0",
   "description": "A database for structural steel sections",
   "main": "electron.js",
   "dependencies": {
+    "electron-json-storage": "^2.1.0",
     "firebase": "^3.6.1",
     "font-awesome": "github:fortawesome/Font-Awesome",
     "photon": "github:connors/photon",

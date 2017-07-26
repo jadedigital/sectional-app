@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import * as actions from './actions'
 import * as getters from './getters'
-import { UPDATE_QUERY, COLUMN_SORT, INITIALIZE, ACTIVATE_LIST } from './mutation-types'
+import { UPDATE_QUERY, COLUMN_SORT, INITIALIZE, ACTIVATE_LIST, UPDATE_COORD } from './mutation-types'
 
 Vue.use(Vuex)
 
@@ -12,10 +12,20 @@ export default new Vuex.Store({
     activelist: 'HE',
     sortkey: 'Designation',
     searchcolumn: 'Designation',
-    sortOrders: {
-      Designation: 1,
-      Mass: 1,
-      SectionArea: 1
+    sortOrders: {},
+    sectionCoords: {
+      1: {x: 0, y: 260},
+      2: {x: 10, y: 260},
+      3: {x: 10, y: 300},
+      4: {x: 95, y: 300},
+      5: {x: 95, y: 0},
+      6: {x: 105, y: 0},
+      7: {x: 105, y: 300},
+      8: {x: 190, y: 300},
+      9: {x: 190, y: 260},
+      10: {x: 200, y: 260},
+      11: {x: 200, y: 320},
+      12: {x: 0, y: 320}
     }
   },
   mutations: {
@@ -30,14 +40,15 @@ export default new Vuex.Store({
       state.activelist = listPayload
     },
     [INITIALIZE] (state, columnsPayload) {
-      // var sortOrdersVar = {}
-      // columnsPayload.forEach(function (key) {
-      console.log('placeholder')
-        // sortOrdersVar[key['.key']] = 1
-        // this isn't getting called possibly because firebase data isn't loaded yet?
-        // for now, hardcode column sort numbers
-      // })
-      // state.sortOrders = sortOrdersVar
+      var sortOrdersVar = {}
+      columnsPayload.forEach(function (key) {
+        sortOrdersVar[key['.key']] = 1
+      })
+      state.sortOrders = sortOrdersVar
+    },
+    [UPDATE_COORD] (state, coordPayload) {
+      // console.log(state.sectionCoords[coordPayload.index].x)
+      state.sectionCoords[coordPayload.index][coordPayload.axis] = Number(coordPayload.value)
     }
   },
   actions,

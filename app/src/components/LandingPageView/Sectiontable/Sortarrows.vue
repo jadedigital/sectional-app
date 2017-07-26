@@ -1,5 +1,5 @@
 <template>
-  <span v-bind:class="['arrow', sortOrders[arrowcolumn] > 0 ? 'asc' : 'dsc']"></span>
+  <span v-bind:class="['arrow', sortOrders[arrowcolumn['.key']] > 0 ? 'asc' : 'dsc']"></span>
 </template>
 
 <script>
