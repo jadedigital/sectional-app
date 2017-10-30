@@ -3,14 +3,14 @@
     <table class="vu-table" v-if="columns[1]">
       <thead>
         <tr>
-          <th v-for="head in columns" v-on:click="sortBy(head)" v-bind:class="{active: sortkey == head}" nowrap>{{head}}
+          <th v-for="(head, index) in columns" :key='index' v-on:click="sortBy(head)" v-bind:class="{active: sortkey == head}" nowrap>{{head}}
             <sortarrows v-bind:arrowcolumn="head"></sortarrows>
           </th>
         </tr>
       </thead>
       <tbody class="vu-body">
-        <tr class="vu-row" v-for="item in tableFilter">
-          <td v-for="head in columns">{{item[head]}}</td>
+        <tr class="vu-row" v-for="item in tableFilter" :key="item.designation">
+          <td v-for="(head, index) in columns" :key='index'>{{item[head]}}</td>
         </tr>
       </tbody>
     </table>

@@ -9,3 +9,5 @@ export const columns = state => state.columns
 export const customCoords = state => state.customCoords
 export const activeCoord = state => state.activeCoord
 export const drawCanvasTrigger = state => state.drawCanvasTrigger
+export const sidebar = state => state.sidebar
+export const customProp = state => state.customProp

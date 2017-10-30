@@ -12,7 +12,7 @@
         <span>Coordinates</span>
       </div>
       <div class="coordlist">
-        <div v-for="(xy, index) in customCoords" class="coords">
+        <div v-for="(xy, index) in customCoords" class="coords" :key='index'>
           <label class="coordIndex">{{index}}</label>
           <span class="coordwrap">
             <input class="coordx" type="number" v-bind:value="xy['x']" v-on:input="updateCoord(index, $event, 'x')" v-on:focus="activeCoord(index)" v-on:blur="deactiveCoord()"><input class="coordy" type="number" v-bind:value="xy['y']" v-on:input="updateCoord(index, $event, 'y')" v-on:focus="activeCoord(index)" v-on:blur="deactiveCoord()">
@@ -20,11 +20,19 @@
         </div>
       </div>
       <div class="addcoord">
-        <span class="coordIndex fa fa-plus-circle" v-on:click="addCoord()"></span>
+        <span class="coordIndex fa fa-plus-circle" v-on:click="addCoord()" v-tooltip="'Add Coordinate'"></span>
         <span class="coordwrap">
           <input v-model="coordx" class="coordx" type="number" placeholder="0"><input v-model="coordy" class="coordy" type="number" placeholder="0">
         </span>
       </div>
+    </div>
+    <div class="custom-actions">
+      <button class="btn btn-default" v-tooltip="'Save Section'">
+        <span class="fa fa-save"></span>
+      </button>
+      <router-link class="btn btn-default" to="/" v-tooltip="'Discard Section'">
+        <span class="fa fa-trash"></span>
+      </router-link>
     </div>
   </div>
 </template>
@@ -50,6 +58,7 @@ export default {
       this.$store.commit('ADD_COORD', payloadData)
       this.coordx = ''
       this.coordy = ''
+      this.$store.commit('CALCULATE_PROP')
     },
     updateCoord (index, e, axis) {
       var payloadData = {'index': index, 'value': e.target.value, 'axis': axis}
@@ -127,4 +136,23 @@ export default {
   padding-left: 8px;
 }
 
+.custom-actions {
+  position: absolute;
+  bottom: 10px;
+  width:100%;
+  .btn {
+    text-decoration: none;
+    margin-left: 10px;
+    font-size: 1.6em;
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    &:hover {
+      background-color: #fcfcfc;
+    }
+    &:nth-child(2) {
+      margin-left: 5px;
+    }
+  }
+}
 </style>
