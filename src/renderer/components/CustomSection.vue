@@ -2,19 +2,30 @@
   <div class="window">
     <toolbar></toolbar>
     <div class="window-content">
-      <sectioncanvas></sectioncanvas>
+      <div class="pane-group">
+        <CustomSidebar></CustomSidebar>
+        <CustomCanvas></CustomCanvas>
+        <CustomProperties></CustomProperties>
+      </div>
     </div>
+    <footbar></footbar>
   </div>
 </template>
 
 <script>
   import Toolbar from './LandingPage/Toolbar'
-  import Sectioncanvas from './CustomSection/Sectioncanvas'
+  import CustomSidebar from './CustomSection/CustomSidebar'
+  import CustomCanvas from './CustomSection/CustomCanvas'
+  import CustomProperties from './CustomSection/CustomProperties'
+  import Footbar from './LandingPage/Footbar'
 
   export default {
     components: {
       Toolbar,
-      Sectioncanvas
+      CustomSidebar,
+      CustomCanvas,
+      CustomProperties,
+      Footbar
     },
     name: 'custom-section'
   }

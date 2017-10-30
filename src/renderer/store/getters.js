@@ -4,3 +4,8 @@ export const sortOrdersGet = state => state.sortOrders
 export const searchcolumnget = state => state.searchcolumn
 export const activelistget = state => state.activelist
 export const sectionCoords = state => state.sectionCoords
+export const sections = state => state.sections
+export const columns = state => state.columns
+export const customCoords = state => state.customCoords
+export const activeCoord = state => state.activeCoord
+export const drawCanvasTrigger = state => state.drawCanvasTrigger

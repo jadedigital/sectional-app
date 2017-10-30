@@ -14,6 +14,7 @@
         <sectiontable></sectiontable>
       </div>
     </div>
+    <footbar></footbar>
   </div>
 </template>
 
@@ -21,12 +22,14 @@
   import Toolbar from './LandingPage/Toolbar'
   import Sidebar from './LandingPage/Sidebar'
   import Sectiontable from './LandingPage/Sectiontable'
+  import Footbar from './LandingPage/Footbar'
 
   export default {
     components: {
       Toolbar,
       Sidebar,
-      Sectiontable
+      Sectiontable,
+      Footbar
     },
     name: 'landing-page'
   }

@@ -19,7 +19,8 @@
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
     "test": "npm run unit && npm run e2e",
     "unit": "karma start test/unit/karma.conf.js",
-    "postinstall": "npm run lint:fix"
+    "postinstall": "npm run lint:fix",
+    "install-wsl": "npm install && npm uninstall electron && export npm_config_platform=win32 && npm install electron && unset npm_config_platform"
   },
   "build": {
     "productName": "sectional-app",
@@ -57,6 +58,7 @@
   },
   "dependencies": {
     "axios": "^0.16.1",
+    "electron": "^1.7.9",
     "electron-json-storage": "^3.0.7",
     "firebase": "^4.2.0",
     "font-awesome": "^4.7.0",
@@ -86,7 +88,6 @@
     "css-loader": "^0.28.4",
     "del": "^2.2.1",
     "devtron": "^1.1.0",
-    "electron": "1.7.5",
     "electron-builder": "^19.10.0",
     "electron-debug": "^1.1.0",
     "electron-devtools-installer": "^2.0.1",
