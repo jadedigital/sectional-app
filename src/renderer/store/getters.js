@@ -11,3 +11,4 @@ export const activeCoord = state => state.activeCoord
 export const drawCanvasTrigger = state => state.drawCanvasTrigger
 export const sidebar = state => state.sidebar
 export const customProp = state => state.customProp
+export const drawingMode = state => state.drawingMode

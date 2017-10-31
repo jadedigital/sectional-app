@@ -1,5 +1,5 @@
 <template>
-  <div class="pane">
+  <div class="pane" v-bind:class="{ active: drawingMode }">
     <canvas id="canvas" width=600 height=600></canvas>
   </div>
 </template>
@@ -12,12 +12,14 @@ export default {
     ...mapGetters({
       customCoords: 'customCoords',
       activeCoord: 'activeCoord',
-      drawCanvasTrigger: 'drawCanvasTrigger'
+      drawCanvasTrigger: 'drawCanvasTrigger',
+      drawingMode: 'drawingMode'
     })
   },
   watch: {
     drawCanvasTrigger: function () {
       this.drawCanvas(this.activeCoord)
+      this.$store.commit('CALCULATE_PROP')
     }
   },
   methods: {
@@ -46,6 +48,7 @@ export default {
       }
 
       gridctx.strokeStyle = '#ccc'
+      gridctx.lineWidth = 1
       gridctx.stroke()
 
       context.beginPath()
@@ -58,11 +61,10 @@ export default {
         }
       }
       context.closePath()
-      context.lineWidth = 1
+      context.lineWidth = 2
       context.fillStyle = '#8ED6FF'
       context.strokeStyle = '#8ED6FF'
       context.stroke()
-      context.fill()
 
       for (var points in this.customCoords) {
         if (this.customCoords.hasOwnProperty(points)) {
@@ -85,3 +87,12 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+@import "../../styles/settings.scss";
+.pane.active {
+  border: 1px solid $active;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+}
+
+</style>

@@ -4,9 +4,9 @@
 </template>
 
 <style lang="scss">
-.toolbar-footer {
-  @import "../../styles/settings.scss";
+@import "../../styles/settings.scss";
 
+.toolbar-footer {
   background-color: $primary-color;
   border-top: none;
 }

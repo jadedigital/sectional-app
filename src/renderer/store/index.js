@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import * as actions from './actions'
 import * as getters from './getters'
-import { UPDATE_QUERY, COLUMN_SORT, INITIALIZE, ACTIVATE_LIST, UPDATE_COORD, ADD_COORD, ACTIVATE_COORD, DEACTIVATE_COORD, CALCULATE_PROP } from './mutation-types'
+import { UPDATE_QUERY, COLUMN_SORT, INITIALIZE, ACTIVATE_LIST, UPDATE_COORD, ADD_COORD, ACTIVATE_COORD, DEACTIVATE_COORD, CALCULATE_PROP, CLEAR_COORDS, TOGGLE_DRAW } from './mutation-types'
 
 Vue.use(Vuex)
 
@@ -20,6 +20,7 @@ export default new Vuex.Store({
     customCoords: {},
     drawCanvasTrigger: 1,
     activeCoord: -1,
+    drawingMode: false,
     customProp: {'area': '', 'plasticNA': '', 'elasticNA': ''}
   },
   mutations: {
@@ -66,6 +67,13 @@ export default new Vuex.Store({
     [DEACTIVATE_COORD] (state) {
       state.activeCoord = -1
       state.drawCanvasTrigger++
+    },
+    [CLEAR_COORDS] (state) {
+      state.customCoords = {}
+      state.drawCanvasTrigger++
+    },
+    [TOGGLE_DRAW] (state) {
+      state.drawingMode = !state.drawingMode
     },
     [CALCULATE_PROP] (state) {
       var Area = 0
