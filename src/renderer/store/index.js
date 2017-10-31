@@ -68,31 +68,21 @@ export default new Vuex.Store({
       state.drawCanvasTrigger++
     },
     [CALCULATE_PROP] (state) {
-      var objectArray = []
-      var XD = 0
-      var YD = 0
+      var Area = 0
       var length = Object.keys(state.customCoords).length
-      for (var key in state.customCoords) {
-        if (state.customCoords.hasOwnProperty(key)) {
-          objectArray.push({
-            'key': key,
-            'x': state.customCoords[key]['x'],
-            'y': state.customCoords[key]['y']
-          })
+
+      for (var n = 1; n <= length; n++) {
+        if (length > 2) {
+          var n2 = n + 1
+          if (n === length) {
+            n2 = 1
+          }
+          var XD = Number(state.customCoords[String(n2)]['x']) - Number(state.customCoords[String(n)]['x'])
+          var Ysum = Number(state.customCoords[String(n2)]['y']) + Number(state.customCoords[String(n)]['y'])
+          Area = Area + XD * (Ysum / 2)
         }
       }
-      objectArray.sort(function (a, b) {
-        return (a.key > b.key)
-      })
-
-      objectArray.some(function (n, index) {
-        var n2 = n.key + 1
-        XD = state.customCoords[n2]['x']
-        YD = state.customCoords[n2]['y']
-        console.log(XD)
-        console.log(YD)
-        return n.key === length
-      })
+      state.customProp.area = Area
     }
   },
   actions,
