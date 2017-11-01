@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import * as actions from './actions'
 import * as getters from './getters'
-import { UPDATE_QUERY, COLUMN_SORT, INITIALIZE, ACTIVATE_LIST, UPDATE_COORD, ADD_COORD, ACTIVATE_COORD, DEACTIVATE_COORD, CALCULATE_PROP, CLEAR_COORDS, TOGGLE_DRAW } from './mutation-types'
+import { UPDATE_QUERY, COLUMN_SORT, INITIALIZE, ACTIVATE_LIST, UPDATE_COORD, ADD_COORD, ACTIVATE_COORD, DEACTIVATE_COORD, CALCULATE_PROP, CLEAR_COORDS, TOGGLE_DRAW, TOGGLE_HOVER, SET_HOVER_COORD, SET_CANVAS_SIZE } from './mutation-types'
 
 Vue.use(Vuex)
 
@@ -21,7 +21,9 @@ export default new Vuex.Store({
     drawCanvasTrigger: 1,
     activeCoord: -1,
     drawingMode: false,
-    customProp: {'area': '', 'plasticNA': '', 'elasticNA': ''}
+    customProp: {'area': '', 'plasticNA': '', 'elasticNA': ''},
+    canvasSize: {'x': 0, 'y': 0},
+    hoverCoord: {active: false, 'x': 0, 'y': 0}
   },
   mutations: {
     [UPDATE_QUERY] (state, queryPayload) {
@@ -74,6 +76,18 @@ export default new Vuex.Store({
     },
     [TOGGLE_DRAW] (state) {
       state.drawingMode = !state.drawingMode
+      state.drawCanvasTrigger++
+    },
+    [TOGGLE_HOVER] (state, hoverState) {
+      state.hoverCoord.active = hoverState
+    },
+    [SET_CANVAS_SIZE] (state, sizePayload) {
+      state.canvasSize.x = sizePayload.x
+      state.canvasSize.y = sizePayload.y
+    },
+    [SET_HOVER_COORD] (state, coordPayload) {
+      state.hoverCoord.x = coordPayload.x
+      state.hoverCoord.y = coordPayload.y
     },
     [CALCULATE_PROP] (state) {
       var Area = 0

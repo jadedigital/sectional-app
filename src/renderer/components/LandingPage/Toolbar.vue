@@ -27,6 +27,7 @@ export default {
 .toolbar {
   box-shadow: none;
   background-image: none;
+  border-bottom: none;
 }
 
 #search_input {

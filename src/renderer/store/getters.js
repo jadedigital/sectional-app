@@ -12,3 +12,5 @@ export const drawCanvasTrigger = state => state.drawCanvasTrigger
 export const sidebar = state => state.sidebar
 export const customProp = state => state.customProp
 export const drawingMode = state => state.drawingMode
+export const canvasSize = state => state.canvasSize
+export const hoverCoord = state => state.hoverCoord
