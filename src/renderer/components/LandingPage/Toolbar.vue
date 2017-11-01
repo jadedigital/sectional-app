@@ -30,6 +30,12 @@ export default {
   border-bottom: none;
 }
 
+.toolbar-header {
+  z-index: 1024;
+  box-shadow: 0 2px 3px hsla(0,0%,7%,.1), 0 0 0 1px hsla(0,0%,7%,.1);
+  background-color: #fdfdfd;
+}
+
 #search_input {
     width: 250px;
     border-color: #ccc;

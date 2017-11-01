@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import * as actions from './actions'
 import * as getters from './getters'
-import { UPDATE_QUERY, COLUMN_SORT, INITIALIZE, ACTIVATE_LIST, UPDATE_COORD, ADD_COORD, ACTIVATE_COORD, DEACTIVATE_COORD, CALCULATE_PROP, CLEAR_COORDS, TOGGLE_DRAW, TOGGLE_HOVER, SET_HOVER_COORD, SET_CANVAS_SIZE } from './mutation-types'
+import { UPDATE_QUERY, COLUMN_SORT, INITIALIZE, ACTIVATE_LIST, UPDATE_COORD, ADD_COORD, ACTIVATE_COORD, DEACTIVATE_COORD, CALCULATE_PROP, CLEAR_COORDS, TOGGLE_DRAW, TOGGLE_HOVER, SET_HOVER_COORD, SET_CANVAS_SIZE, TOGGLE_PROP_RESIZE, PROP_RESIZE, TOGGLE_SNAP } from './mutation-types'
 
 Vue.use(Vuex)
 
@@ -23,7 +23,9 @@ export default new Vuex.Store({
     drawingMode: false,
     customProp: {'area': '', 'plasticNA': '', 'elasticNA': ''},
     canvasSize: {'x': 0, 'y': 0},
-    hoverCoord: {active: false, 'x': 0, 'y': 0}
+    hoverCoord: {active: false, 'x': 0, 'y': 0},
+    propertiesPane: {width: 200, resizing: false},
+    grid: {size: 20, units: 'mm', snap: true}
   },
   mutations: {
     [UPDATE_QUERY] (state, queryPayload) {
@@ -88,6 +90,15 @@ export default new Vuex.Store({
     [SET_HOVER_COORD] (state, coordPayload) {
       state.hoverCoord.x = coordPayload.x
       state.hoverCoord.y = coordPayload.y
+    },
+    [TOGGLE_PROP_RESIZE] (state, boolPayload) {
+      state.propertiesPane.resizing = boolPayload
+    },
+    [PROP_RESIZE] (state, widthPayload) {
+      state.propertiesPane.width = widthPayload
+    },
+    [TOGGLE_SNAP] (state) {
+      state.grid.snap = !state.grid.snap
     },
     [CALCULATE_PROP] (state) {
       var Area = 0

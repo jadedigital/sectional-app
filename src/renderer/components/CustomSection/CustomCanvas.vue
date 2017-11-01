@@ -15,7 +15,8 @@ export default {
       drawCanvasTrigger: 'drawCanvasTrigger',
       drawingMode: 'drawingMode',
       canvasSize: 'canvasSize',
-      hoverCoord: 'hoverCoord'
+      hoverCoord: 'hoverCoord',
+      grid: 'grid'
     })
   },
   watch: {
@@ -34,7 +35,7 @@ export default {
       context.clearRect(0, 0, canvas.width, canvas.height)
 
       var padding = 0
-      var grid = 20
+      var grid = this.grid.size
       var bw = canvas.width
       var bh = canvas.height
       var p = 0
@@ -97,8 +98,10 @@ export default {
         var BB = canvas.getBoundingClientRect()
         var mouseX = parseInt(e.clientX - BB.left)
         var mouseY = parseInt(e.clientY - BB.top)
-        mouseX = Math.round(mouseX / 20) * 20
-        mouseY = Math.round(mouseY / 20) * 20
+        if (this.grid.snap === true) {
+          mouseX = Math.round(mouseX / this.grid.size) * this.grid.size
+          mouseY = Math.round(mouseY / this.grid.size) * this.grid.size
+        }
 
         if (this.customCoords['1'] && mouseX === this.customCoords['1']['x'] && mouseY === this.customCoords['1']['y']) {
           this.$store.commit('TOGGLE_HOVER', false)
@@ -117,6 +120,10 @@ export default {
         var BB = canvas.getBoundingClientRect()
         var mouseX = parseInt(e.clientX - BB.left)
         var mouseY = parseInt(e.clientY - BB.top)
+        if (this.grid.snap === true) {
+          mouseX = Math.round(mouseX / this.grid.size) * this.grid.size
+          mouseY = Math.round(mouseY / this.grid.size) * this.grid.size
+        }
 
         var coordPayload = {'x': mouseX, 'y': mouseY}
         this.$store.commit('SET_HOVER_COORD', coordPayload)
