@@ -23,7 +23,8 @@ import Footbar from './LandingPage/Footbar'
 export default {
   computed: {
     ...mapGetters({
-      propertiesPane: 'propertiesPane'
+      propertiesPane: 'propertiesPane',
+      hoverCoord: 'hoverCoord'
     })
   },
   methods: {
@@ -40,11 +41,17 @@ export default {
         var newWidth = this.propertiesPane.width + (propX - mouseX)
         this.$store.commit('PROP_RESIZE', newWidth)
       }
+    },
+    escape (e) {
+      if (e.keyCode === 27 && this.hoverCoord.active === true) {
+        this.$store.commit('TOGGLE_DRAW')
+      }
     }
   },
   created: function () {
     window.addEventListener('mouseup', this.toggleResize)
     window.addEventListener('mousemove', this.resizeProp)
+    window.addEventListener('keyup', this.escape)
   },
   components: {
     Toolbar,

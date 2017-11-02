@@ -1,5 +1,5 @@
 <template>
-  <div id="canvasPane" class="pane" v-on:onresize="initialize" v-on:click="drawCoord" v-on:mousemove="hoverOver" v-on:mouseout="hoverOut" v-bind:class="{ active: drawingMode }">
+  <div id="canvasPane" class="pane" v-on:resize="initialize" v-on:click="drawCoord" v-on:mousemove="hoverOver" v-on:mouseout="hoverOut" v-bind:class="{ active: drawingMode }">
     <canvas id="canvas" v-on:dblclick="drawModeToggle" v-bind:width="canvasSize.x" v-bind:height="canvasSize.y"></canvas>
   </div>
 </template>
@@ -28,18 +28,15 @@ export default {
   methods: {
     drawCanvas: function (index) {
       var canvas = document.getElementById('canvas')
-      var context = canvas.getContext('2d')
-      var ctx = canvas.getContext('2d')
-      var ctxactive = canvas.getContext('2d')
       var gridctx = canvas.getContext('2d')
-      context.clearRect(0, 0, canvas.width, canvas.height)
+      gridctx.clearRect(0, 0, canvas.width, canvas.height)
 
-      var padding = 0
       var grid = this.grid.size
       var bw = canvas.width
       var bh = canvas.height
       var p = 0
 
+      gridctx.beginPath()
       for (var x = 0; x <= bw; x += grid) {
         gridctx.moveTo(0.5 + x + p, p)
         gridctx.lineTo(0.5 + x + p, bh + p)
@@ -49,23 +46,34 @@ export default {
         gridctx.moveTo(p, 0.5 + y + p)
         gridctx.lineTo(bw + p, 0.5 + y + p)
       }
-
       gridctx.strokeStyle = '#ccc'
       gridctx.lineWidth = 1
       gridctx.stroke()
+
+      this.drawShape(index)
+    },
+    drawShape: function (index) {
+      var canvasShape = document.getElementById('canvas')
+      var context = canvasShape.getContext('2d')
+      var ctx = canvasShape.getContext('2d')
+      var ctxactive = canvasShape.getContext('2d')
+
+      var padding = 0
+      var scale = this.grid.scale
 
       context.beginPath()
       for (var coord in this.customCoords) {
         if (this.customCoords.hasOwnProperty(coord)) {
           if (coord === '1') {
-            context.moveTo(padding + Number(this.customCoords[coord]['x']), padding + Number(this.customCoords[coord]['y']))
+            context.moveTo(scale * (padding + Number(this.customCoords[coord]['x'])), scale * (padding + Number(this.customCoords[coord]['y'])))
           }
-          context.lineTo(padding + Number(this.customCoords[coord]['x']), padding + Number(this.customCoords[coord]['y']))
+          context.lineTo(scale * (padding + Number(this.customCoords[coord]['x'])), scale * (padding + Number(this.customCoords[coord]['y'])))
         }
       }
       if (this.hoverCoord.active === true) {
         context.lineTo(padding + Number(this.hoverCoord.x), padding + Number(this.hoverCoord.y))
       }
+
       context.lineWidth = 2
       context.fillStyle = '#8ED6FF'
       context.strokeStyle = '#8ED6FF'
@@ -78,10 +86,10 @@ export default {
         if (this.customCoords.hasOwnProperty(points)) {
           if (index !== -1 && points === index) {
             ctxactive.fillStyle = 'red'
-            ctxactive.fillRect(padding + Number(this.customCoords[points]['x']) - 3, padding + Number(this.customCoords[points]['y']) - 3, 7, 7)
+            ctxactive.fillRect(scale * (padding + Number(this.customCoords[points]['x'])) - 3, scale * (padding + Number(this.customCoords[points]['y'])) - 3, 7, 7)
           } else {
             ctx.fillStyle = '#999999'
-            ctx.fillRect(padding + Number(this.customCoords[points]['x']) - 3, padding + Number(this.customCoords[points]['y']) - 3, 7, 7)
+            ctx.fillRect(scale * (padding + Number(this.customCoords[points]['x'])) - 3, scale * (padding + Number(this.customCoords[points]['y'])) - 3, 7, 7)
           }
         }
       }

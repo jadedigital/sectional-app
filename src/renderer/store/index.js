@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import * as actions from './actions'
 import * as getters from './getters'
-import { UPDATE_QUERY, COLUMN_SORT, INITIALIZE, ACTIVATE_LIST, UPDATE_COORD, ADD_COORD, ACTIVATE_COORD, DEACTIVATE_COORD, CALCULATE_PROP, CLEAR_COORDS, TOGGLE_DRAW, TOGGLE_HOVER, SET_HOVER_COORD, SET_CANVAS_SIZE, TOGGLE_PROP_RESIZE, PROP_RESIZE, TOGGLE_SNAP } from './mutation-types'
+import * as types from './mutation-types'
 
 Vue.use(Vuex)
 
@@ -25,33 +25,33 @@ export default new Vuex.Store({
     canvasSize: {'x': 0, 'y': 0},
     hoverCoord: {active: false, 'x': 0, 'y': 0},
     propertiesPane: {width: 200, resizing: false},
-    grid: {size: 20, units: 'mm', snap: true}
+    grid: {size: 20, units: 'mm', snap: true, scale: 1}
   },
   mutations: {
-    [UPDATE_QUERY] (state, queryPayload) {
+    [types.UPDATE_QUERY] (state, queryPayload) {
       state.query = queryPayload
     },
-    [COLUMN_SORT] (state, columnPayload) {
+    [types.COLUMN_SORT] (state, columnPayload) {
       state.sortkey = columnPayload
       state.sortOrders[columnPayload] = state.sortOrders[columnPayload] * -1
     },
-    [ACTIVATE_LIST] (state, listPayload) {
+    [types.ACTIVATE_LIST] (state, listPayload) {
       state.activelist = listPayload
     },
-    [INITIALIZE] (state, columnsPayload) {
+    [types.INITIALIZE] (state, columnsPayload) {
       var sortOrdersVar = {}
       columnsPayload.forEach(function (key) {
         sortOrdersVar[key] = 1
       })
       state.sortOrders = sortOrdersVar
     },
-    [UPDATE_COORD] (state, coordPayload) {
+    [types.UPDATE_COORD] (state, coordPayload) {
       var data = state.customCoords
       data[coordPayload.index][coordPayload.axis] = coordPayload.value
       state.sectionCoords = data
       state.drawCanvasTrigger++
     },
-    [ADD_COORD] (state, coordPayload) {
+    [types.ADD_COORD] (state, coordPayload) {
       var index = 1
       var data = {}
       if (state.customCoords) {
@@ -64,43 +64,51 @@ export default new Vuex.Store({
       state.customCoords = data
       state.drawCanvasTrigger++
     },
-    [ACTIVATE_COORD] (state, coordPayload) {
+    [types.ACTIVATE_COORD] (state, coordPayload) {
       state.activeCoord = coordPayload
       state.drawCanvasTrigger++
     },
-    [DEACTIVATE_COORD] (state) {
+    [types.DEACTIVATE_COORD] (state) {
       state.activeCoord = -1
       state.drawCanvasTrigger++
     },
-    [CLEAR_COORDS] (state) {
+    [types.CLEAR_COORDS] (state) {
       state.customCoords = {}
       state.drawCanvasTrigger++
     },
-    [TOGGLE_DRAW] (state) {
+    [types.TOGGLE_DRAW] (state) {
       state.drawingMode = !state.drawingMode
       state.drawCanvasTrigger++
     },
-    [TOGGLE_HOVER] (state, hoverState) {
+    [types.TOGGLE_HOVER] (state, hoverState) {
       state.hoverCoord.active = hoverState
     },
-    [SET_CANVAS_SIZE] (state, sizePayload) {
+    [types.SET_CANVAS_SIZE] (state, sizePayload) {
       state.canvasSize.x = sizePayload.x
       state.canvasSize.y = sizePayload.y
     },
-    [SET_HOVER_COORD] (state, coordPayload) {
+    [types.SET_HOVER_COORD] (state, coordPayload) {
       state.hoverCoord.x = coordPayload.x
       state.hoverCoord.y = coordPayload.y
     },
-    [TOGGLE_PROP_RESIZE] (state, boolPayload) {
+    [types.TOGGLE_PROP_RESIZE] (state, boolPayload) {
       state.propertiesPane.resizing = boolPayload
     },
-    [PROP_RESIZE] (state, widthPayload) {
+    [types.PROP_RESIZE] (state, widthPayload) {
       state.propertiesPane.width = widthPayload
     },
-    [TOGGLE_SNAP] (state) {
+    [types.TOGGLE_SNAP] (state) {
       state.grid.snap = !state.grid.snap
     },
-    [CALCULATE_PROP] (state) {
+    [types.GRID_SIZE] (state, sizePayload) {
+      state.grid.size = sizePayload
+      state.drawCanvasTrigger++
+    },
+    [types.GRID_SCALE] (state, scalePayload) {
+      state.grid.scale = scalePayload
+      state.drawCanvasTrigger++
+    },
+    [types.CALCULATE_PROP] (state) {
       var Area = 0
       var length = Object.keys(state.customCoords).length
 
