@@ -1,6 +1,6 @@
 <template>
   <div id="canvasPane" class="pane" v-on:onresize="initialize" v-on:click="drawCoord" v-on:mousemove="hoverOver" v-on:mouseout="hoverOut" v-bind:class="{ active: drawingMode }">
-    <canvas id="canvas" v-bind:width="canvasSize.x" v-bind:height="canvasSize.y"></canvas>
+    <canvas id="canvas" v-on:dblclick="drawModeToggle" v-bind:width="canvasSize.x" v-bind:height="canvasSize.y"></canvas>
   </div>
 </template>
 
@@ -143,6 +143,9 @@ export default {
       var coordPayload = {'x': BB.width, 'y': BB.height}
       this.$store.commit('SET_CANVAS_SIZE', coordPayload)
       this.drawCanvas()
+    },
+    drawModeToggle () {
+      this.$store.commit('TOGGLE_DRAW')
     }
   },
   mounted: function () {

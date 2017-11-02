@@ -28,7 +28,9 @@ export default {
   },
   methods: {
     toggleResize () {
-      this.$store.commit('TOGGLE_PROP_RESIZE', false)
+      if (this.propertiesPane.resizing === true) {
+        this.$store.commit('TOGGLE_PROP_RESIZE', false)
+      }
     },
     resizeProp (e) {
       if (this.propertiesPane.resizing === true) {

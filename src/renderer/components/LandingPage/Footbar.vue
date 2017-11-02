@@ -1,9 +1,11 @@
 <template>
   <footer class="toolbar toolbar-footer">
     <div class="footer-options">
+      <div v-if="hoverCoord.active" class="option">x: {{hoverCoord.x}}, y: {{hoverCoord.y}}</div>
       <div class="option" v-on:click="toggleSnap">Snap to Grid: {{snap}}</div>
-      <div class="option">Grid Size: {{grid.size}} px</div>
+      <div class="option">Grid Size: {{grid.size}}px</div>
       <div class="option">Units: {{grid.units}}</div>
+      <div class="option">Scale: 1:1</div>
     </div>
   </footer>
 </template>
@@ -14,7 +16,8 @@ import { mapGetters } from 'vuex'
 export default {
   computed: {
     ...mapGetters({
-      grid: 'grid'
+      grid: 'grid',
+      hoverCoord: 'hoverCoord'
     }),
     snap () {
       var snap = ((this.grid.snap === true) ? 'On' : 'Off')
