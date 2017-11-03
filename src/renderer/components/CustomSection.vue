@@ -40,18 +40,23 @@ export default {
         var mouseX = e.clientX
         var newWidth = this.propertiesPane.width + (propX - mouseX)
         this.$store.commit('PROP_RESIZE', newWidth)
+        this.$store.commit('REDRAW')
       }
     },
     escape (e) {
       if (e.keyCode === 27 && this.hoverCoord.active === true) {
         this.$store.commit('TOGGLE_DRAW')
       }
+    },
+    resize () {
+      this.$store.commit('REDRAW')
     }
   },
   created: function () {
     window.addEventListener('mouseup', this.toggleResize)
     window.addEventListener('mousemove', this.resizeProp)
     window.addEventListener('keyup', this.escape)
+    window.addEventListener('resize', this.resize)
   },
   components: {
     Toolbar,

@@ -1,6 +1,6 @@
 <template>
-  <div id="canvasPane" class="pane" v-on:resize="initialize" v-on:click="drawCoord" v-on:mousemove="hoverOver" v-on:mouseout="hoverOut" v-bind:class="{ active: drawingMode }">
-    <canvas id="canvas" v-on:dblclick="drawModeToggle" v-bind:width="canvasSize.x" v-bind:height="canvasSize.y"></canvas>
+  <div id="canvasPane" class="pane" v-on:wheel.ctrl="zoom" v-on:click="drawCoord" v-on:mousemove="hoverOver" v-on:mouseout="hoverOut" v-bind:class="{ active: drawingMode }">
+    <canvas id="canvas" v-on:dblclick="drawModeToggle"></canvas>
   </div>
 </template>
 
@@ -14,35 +14,51 @@ export default {
       activeCoord: 'activeCoord',
       drawCanvasTrigger: 'drawCanvasTrigger',
       drawingMode: 'drawingMode',
-      canvasSize: 'canvasSize',
       hoverCoord: 'hoverCoord',
       grid: 'grid'
     })
   },
   watch: {
     drawCanvasTrigger: function () {
+      this.setCanvasSize()
       this.drawCanvas(this.activeCoord)
       this.$store.commit('CALCULATE_PROP')
     }
   },
   methods: {
+    zoom (e) {
+      if (this.drawingMode) {
+        var scale = this.grid.scale + ((e.deltaY / 1000) * -1)
+        scale = Math.round(Math.min(Math.max(scale, 0.25), 10) / 0.01) * 0.01
+        this.$store.commit('GRID_SCALE', scale)
+      }
+    },
+    setCanvasSize () {
+      var pane = document.getElementById('canvasPane')
+      var canvas = document.getElementById('canvas')
+      var BB = pane.getBoundingClientRect()
+      var coordPayload = {'x': Math.max(BB.width * this.grid.scale, BB.width), 'y': Math.max(BB.height * this.grid.scale, BB.height)}
+      canvas.width = coordPayload.x
+      canvas.height = coordPayload.y
+    },
     drawCanvas: function (index) {
       var canvas = document.getElementById('canvas')
       var gridctx = canvas.getContext('2d')
       gridctx.clearRect(0, 0, canvas.width, canvas.height)
 
       var grid = this.grid.size
+      var scale = this.grid.scale
       var bw = canvas.width
       var bh = canvas.height
       var p = 0
 
       gridctx.beginPath()
-      for (var x = 0; x <= bw; x += grid) {
+      for (var x = 0; x <= bw; x += (grid * scale)) {
         gridctx.moveTo(0.5 + x + p, p)
         gridctx.lineTo(0.5 + x + p, bh + p)
       }
 
-      for (var y = 0; y <= bh; y += grid) {
+      for (var y = 0; y <= bh; y += (grid * scale)) {
         gridctx.moveTo(p, 0.5 + y + p)
         gridctx.lineTo(bw + p, 0.5 + y + p)
       }
@@ -146,10 +162,7 @@ export default {
       }
     },
     initialize () {
-      var canvas = document.getElementById('canvasPane')
-      var BB = canvas.getBoundingClientRect()
-      var coordPayload = {'x': BB.width, 'y': BB.height}
-      this.$store.commit('SET_CANVAS_SIZE', coordPayload)
+      this.setCanvasSize()
       this.drawCanvas()
     },
     drawModeToggle () {
@@ -166,7 +179,6 @@ export default {
 @import "../../styles/settings.scss";
 
 #canvasPane {
-  overflow: hidden;
   border-left: none;
   &.active {
     border: 1px solid $active;

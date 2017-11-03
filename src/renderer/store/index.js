@@ -53,15 +53,10 @@ export default new Vuex.Store({
     },
     [types.ADD_COORD] (state, coordPayload) {
       var index = 1
-      var data = {}
       if (state.customCoords) {
         index = Object.keys(state.customCoords).length + 1
-        data = state.customCoords
       }
-      var x = coordPayload.coordx
-      var y = coordPayload.coordy
-      data[index] = { 'x': x, 'y': y }
-      state.customCoords = data
+      Vue.set(state.customCoords, index, {'x': coordPayload.coordx, 'y': coordPayload.coordy})
       state.drawCanvasTrigger++
     },
     [types.ACTIVATE_COORD] (state, coordPayload) {
@@ -106,6 +101,9 @@ export default new Vuex.Store({
     },
     [types.GRID_SCALE] (state, scalePayload) {
       state.grid.scale = scalePayload
+      state.drawCanvasTrigger++
+    },
+    [types.REDRAW] (state) {
       state.drawCanvasTrigger++
     },
     [types.CALCULATE_PROP] (state) {
