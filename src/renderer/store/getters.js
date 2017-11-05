@@ -16,3 +16,4 @@ export const canvasSize = state => state.canvasSize
 export const hoverCoord = state => state.hoverCoord
 export const propertiesPane = state => state.propertiesPane
 export const grid = state => state.grid
+export const drawAlongDist = state => state.drawAlongDist

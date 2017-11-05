@@ -30,6 +30,8 @@ export default {
 <style lang="scss">
 .pane.properties {
   border-left-width: 2px;
+  border-left-color: #fff;
+  box-shadow: -2px 2px 3px rgba(18, 18, 18, 0.1), 0 0 0 1px rgba(18, 18, 18, 0.1);
   cursor: ew-resize;
 }
 

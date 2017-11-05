@@ -23,9 +23,10 @@ export default new Vuex.Store({
     drawingMode: false,
     customProp: {'area': '', 'plasticNA': '', 'elasticNA': ''},
     canvasSize: {'x': 0, 'y': 0},
-    hoverCoord: {active: false, 'x': 0, 'y': 0},
+    hoverCoord: {'active': false, 'x': 0, 'y': 0},
     propertiesPane: {width: 200, resizing: false},
-    grid: {size: 20, units: 'mm', snap: true, scale: 1}
+    grid: {'size': 20, 'units': 'mm', 'snap': false, 'ortho': false, 'scale': 1, 'track': true, 'tracknode': 0},
+    drawAlongDist: {'dist': '', 'active': false}
   },
   mutations: {
     [types.UPDATE_QUERY] (state, queryPayload) {
@@ -57,6 +58,8 @@ export default new Vuex.Store({
         index = Object.keys(state.customCoords).length + 1
       }
       Vue.set(state.customCoords, index, {'x': coordPayload.coordx, 'y': coordPayload.coordy})
+      state.drawAlongDist.dist = ''
+      state.drawAlongDist.active = false
       state.drawCanvasTrigger++
     },
     [types.ACTIVATE_COORD] (state, coordPayload) {
@@ -73,6 +76,8 @@ export default new Vuex.Store({
     },
     [types.TOGGLE_DRAW] (state) {
       state.drawingMode = !state.drawingMode
+      state.drawAlongDist.dist = ''
+      state.drawAlongDist.active = false
       state.drawCanvasTrigger++
     },
     [types.TOGGLE_HOVER] (state, hoverState) {
@@ -94,6 +99,9 @@ export default new Vuex.Store({
     },
     [types.TOGGLE_SNAP] (state) {
       state.grid.snap = !state.grid.snap
+      if (state.grid.snap) {
+        state.grid.track = false
+      }
     },
     [types.GRID_SIZE] (state, sizePayload) {
       state.grid.size = sizePayload
@@ -105,6 +113,56 @@ export default new Vuex.Store({
     },
     [types.REDRAW] (state) {
       state.drawCanvasTrigger++
+    },
+    [types.TOGGLE_ORTHO] (state) {
+      state.grid.ortho = !state.grid.ortho
+    },
+    [types.SET_TRACKER] (state, trackPayload) {
+      state.grid.tracknode = trackPayload
+    },
+    [types.RESET_TRACKER] (state) {
+      state.grid.tracknode = 0
+    },
+    [types.TOGGLE_TRACK] (state) {
+      state.grid.track = !state.grid.track
+      if (state.grid.track) {
+        state.grid.snap = false
+      }
+    },
+    [types.ADD_DRAW_ALONG_DIST] (state, distPayload) {
+      var dist = state.drawAlongDist.dist
+      dist = '' + dist + distPayload
+      state.drawAlongDist.dist = dist
+      state.drawAlongDist.active = true
+    },
+    [types.DRAW_ALONG_DIST] (state) {
+      var index = Object.keys(state.customCoords).length
+      var x1 = state.customCoords[index].x
+      var y1 = state.customCoords[index].y
+      var x2 = state.hoverCoord.x
+      var y2 = state.hoverCoord.y
+      var length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))
+      var newLength = state.drawAlongDist.dist
+      var lengthRatio = newLength / length
+
+      var x3 = (((1 - lengthRatio) * x1) + (lengthRatio * x2))
+      var y3 = (((1 - lengthRatio) * y1) + (lengthRatio * y2))
+      x3 = Math.round(x3 * 100) / 100
+      y3 = Math.round(y3 * 100) / 100
+
+      Vue.set(state.customCoords, (index + 1), {'x': x3, 'y': y3})
+      state.drawAlongDist.dist = ''
+      state.drawAlongDist.active = false
+      state.drawCanvasTrigger++
+    },
+    [types.CLEAR_DRAW_DIST] (state) {
+      state.drawAlongDist.dist = ''
+      state.drawAlongDist.active = false
+    },
+    [types.DEL_DRAW_ALONG_DIST] (state) {
+      var dist = state.drawAlongDist.dist
+      dist = dist.slice(0, -1)
+      state.drawAlongDist.dist = dist
     },
     [types.CALCULATE_PROP] (state) {
       var Area = 0
@@ -121,7 +179,7 @@ export default new Vuex.Store({
           Area = Area + XD * (Ysum / 2)
         }
       }
-      state.customProp.area = Area
+      state.customProp.area = Math.abs(Area)
     }
   },
   actions,

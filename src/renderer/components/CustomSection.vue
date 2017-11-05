@@ -1,6 +1,5 @@
 <template>
   <div class="window">
-    <toolbar></toolbar>
     <div class="window-content">
       <div class="pane-group">
         <CustomSidebar></CustomSidebar>
@@ -24,7 +23,9 @@ export default {
   computed: {
     ...mapGetters({
       propertiesPane: 'propertiesPane',
-      hoverCoord: 'hoverCoord'
+      hoverCoord: 'hoverCoord',
+      drawAlongDist: 'drawAlongDist',
+      customCoords: 'customCoords'
     })
   },
   methods: {
@@ -43,9 +44,23 @@ export default {
         this.$store.commit('REDRAW')
       }
     },
-    escape (e) {
+    keyups (e) {
       if (e.keyCode === 27 && this.hoverCoord.active === true) {
-        this.$store.commit('TOGGLE_DRAW')
+        if (this.drawAlongDist.active) {
+          this.$store.commit('CLEAR_DRAW_DIST')
+        } else {
+          this.$store.commit('TOGGLE_HOVER', false)
+          this.$store.commit('TOGGLE_DRAW')
+        }
+      }
+      if (((e.which <= 57 && e.which >= 48) || (e.which <= 105 && e.which >= 96) || e.which === 190 || e.which === 110) && this.hoverCoord.active && Object.keys(this.customCoords).length) {
+        this.$store.commit('ADD_DRAW_ALONG_DIST', e.key)
+      }
+      if (e.which === 13 && this.drawAlongDist.active) {
+        this.$store.commit('DRAW_ALONG_DIST')
+      }
+      if (e.which === 8 && this.drawAlongDist.active) {
+        this.$store.commit('DEL_DRAW_ALONG_DIST')
       }
     },
     resize () {
@@ -55,8 +70,14 @@ export default {
   created: function () {
     window.addEventListener('mouseup', this.toggleResize)
     window.addEventListener('mousemove', this.resizeProp)
-    window.addEventListener('keyup', this.escape)
+    window.addEventListener('keyup', this.keyups)
     window.addEventListener('resize', this.resize)
+  },
+  destroyed: function () {
+    window.removeEventListener('mouseup', this.toggleResize)
+    window.removeEventListener('mousemove', this.resizeProp)
+    window.removeEventListener('keyup', this.keyups)
+    window.removeEventListener('resize', this.resize)
   },
   components: {
     Toolbar,

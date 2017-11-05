@@ -2,6 +2,7 @@ import Vue from 'vue'
 import axios from 'axios'
 import VueFire from 'vuefire'
 import VTooltip from 'v-tooltip'
+import vueSlider from 'vue-slider-component'
 
 import App from './App'
 import router from './router'
@@ -22,6 +23,7 @@ Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
 Vue.use(VueFire)
 Vue.use(VTooltip)
+Vue.use(vueSlider)
 
 /* eslint-disable no-new */
 new Vue({

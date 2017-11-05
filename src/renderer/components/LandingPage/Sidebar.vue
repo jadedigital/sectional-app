@@ -62,8 +62,8 @@ export default {
   .tooltip-inner {
     background: #fff;
     padding: 1px 8px;
-    border: solid 1px #9e9e9e;
-    box-shadow: 1px 1px 3px #ccc;
+    border: solid 1px rgba(201, 201, 201, 0.25);
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   }
 
   .tooltip-arrow {

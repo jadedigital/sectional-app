@@ -2,17 +2,10 @@
   <div class="pane-sm sidebar">
     <div class="form-group">
       <div class="header">
-        <span>Section</span>
-      </div>
-      <div class="sectioninfo">
-        <label class="sectionlabel">Name<input class="sectioninp" type="text"></label>
-        <label class="sectionlabel">Group<input class="sectioninp" type="text"></label>
-      </div>
-      <div class="header">
         <span>Coordinates</span>
       </div>
       <div class="coordToolbar">
-        <button class="btn btn-default" v-bind:class="{ active: drawingMode }" v-on:click="drawModeToggle()" v-tooltip="'Draw Mode'">
+        <button id="draw-btn" class="btn btn-default" v-bind:class="{ active: drawingMode }" v-on:click="drawModeToggle()" v-tooltip="'Draw Mode'">
           <span class="fa fa-pencil"></span>
         </button>
         <button class="btn btn-default" v-on:click="clearCoords()" v-tooltip="'Clear All'">
@@ -84,6 +77,8 @@ export default {
       this.$store.commit('CLEAR_COORDS')
     },
     drawModeToggle () {
+      document.getElementById('draw-btn').blur()
+      this.$store.commit('TOGGLE_HOVER', false)
       this.$store.commit('TOGGLE_DRAW')
     }
   }
@@ -91,9 +86,22 @@ export default {
 </script>
 
 <style lang="scss">
- @import "../../styles/settings.scss";
+@import "../../styles/settings.scss";
+.pane-sm {
+  min-width: 220px;
+  background-color: #48525d;
+}
+
 .coordx, .coordy {
-  width: 50%
+  width: 50%;
+  background-color: #48525d;
+  border: none;
+  color: $off-white;
+  border-bottom: 1px solid $off-white;
+  text-align: center;
+  &:focus {
+    outline: none;
+  }
 }
 
 .coordwrap {
@@ -106,10 +114,10 @@ export default {
 .coordIndex {
   width: 20%;
   text-align: center;
-  color: $primary-color;
+  color: $off-white;
   margin: 3px 0;
   &:hover {
-    color: $primary-color-hover;
+    color: $primary-color;
   }
 }
 
@@ -165,8 +173,10 @@ export default {
     background-color: transparent;
     background-image: none;
     box-shadow: none;
+    color: $off-white;
     &:hover {
-      background-color: #fcfcfc;
+      background-color: #fff;
+      color: $primary-color;
     }
     &:nth-child(2) {
       margin-left: 5px;
@@ -189,8 +199,10 @@ export default {
     background-color: transparent;
     background-image: none;
     box-shadow: none;
+    color: $off-white;
     &:hover {
-      background-color: #fcfcfc;
+      background-color: #fff;
+      color: $primary-color;
     }
     &:nth-child(2) {
       margin-left: 5px;
@@ -198,7 +210,7 @@ export default {
   }
   .active {
     background-color: #6d6d6d;
-    color: #fcfcfc;
+    color: $off-white;
     &:hover {
       background-color: #3d3d3d;
     }
