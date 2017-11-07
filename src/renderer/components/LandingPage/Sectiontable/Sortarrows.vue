@@ -15,7 +15,8 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+@import "../../../styles/settings.scss";
 th.active .arrow {
   opacity: 1;
 }
@@ -36,12 +37,12 @@ th.active .arrow {
 .active .arrow.asc:after {
   font-family: FontAwesome;
   content: "\f0de";
-  color: #1bc98e;
+  color: $primary-color;
 }
 
 .active .arrow.dsc:after {
   font-family: FontAwesome;
   content: "\f0dd";
-  color: #1bc98e;
+  color: $primary-color;
 }
 </style>

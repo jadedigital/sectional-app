@@ -1,6 +1,6 @@
 <template>
   <footer class="toolbar toolbar-footer">
-    <div class="footer-options">
+    <div v-show="customRoute" class="footer-options">
       <div v-if="hoverCoord.active" class="option">x: {{hoverCoord.x}}, y: {{hoverCoord.y}}</div>
       <div class="option" v-on:click="toggleSnap">Snap to Grid: {{snap}}</div>
       <div class="option" v-on:click="toggleOrtho">Ortho Mode: {{ortho}}</div>
@@ -66,11 +66,16 @@ export default {
       set (value) {
         this.$store.commit('GRID_SCALE', value / 100)
       }
+    },
+    customRoute () {
+      var route = (this.$route.name === 'custom-section')
+      return route
     }
   },
   methods: {
     toggleSnap () {
       this.$store.commit('TOGGLE_SNAP')
+      console.log(this.$route)
     },
     toggleOrtho () {
       this.$store.commit('TOGGLE_ORTHO')
@@ -95,6 +100,8 @@ export default {
   border-top: none;
   min-height: 22px;
   margin-left: -50px;
+  background-image: none;
+  box-shadow: none;
 }
 
 .footer-options {

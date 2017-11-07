@@ -1,9 +1,9 @@
 <template>
   <div class="pane-sm sidebar">
     <div class="form-group">
-      <div class="header">
+      <h5 class="header">
         <span>Coordinates</span>
-      </div>
+      </h5>
       <div class="coordToolbar">
         <button id="draw-btn" class="btn btn-default" v-bind:class="{ active: drawingMode }" v-on:click="drawModeToggle()" v-tooltip="'Draw Mode'">
           <span class="fa fa-pencil"></span>
@@ -33,9 +33,6 @@
       <button class="btn btn-default" v-tooltip="'Save Section'">
         <span class="fa fa-save"></span>
       </button>
-      <router-link class="btn btn-default" to="/" v-tooltip="'Discard Section'">
-        <span class="fa fa-trash"></span>
-      </router-link>
     </div>
   </div>
 </template>
@@ -155,9 +152,10 @@ export default {
 }
 
 .header {
-  background: $primary-color;
+  background: $secondary-color-hover;
   color: $off-white;
   padding-left: 8px;
+  margin: 0;
 }
 
 .custom-actions {

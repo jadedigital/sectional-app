@@ -1,5 +1,5 @@
 <template>
-  <div class="pane">
+  <div class="pane sections">
     <table class="vu-table" v-if="columns[1]">
       <thead>
         <tr>
@@ -83,6 +83,10 @@ th.active {
 .vu-row:hover {
   color: #fff;
   background-color: #9e9e9e;
+}
+
+.sections {
+  border-left: 0;
 }
 
 </style>

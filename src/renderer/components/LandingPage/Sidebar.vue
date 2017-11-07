@@ -2,13 +2,13 @@
   <div class="pane-sm sidebar">
     <nav id="section_select" class="nav-group">
       <div v-for="(family, key) in sidebar" :key='key'>
-        <h5 class="nav-group-title">{{key}}<span class="expand"></span></h5>
+        <h5 class="header">{{key}}<span class="expand"></span></h5>
         <span v-for="(item, key) in family" :key='key'><a v-on:click="activatelist(key)" v-bind:class="{active: activelist == key}" class="nav-group-item">{{item['displayname']}}</a></span>
       </div>
     </nav>
-    <router-link class="btn btn-default custom-link" to="/custom" v-tooltip="'Build Custom Section'">
-      <span class="fa fa-crop"></span>
-    </router-link>
+    <div class="toolbar-actions">
+      <input type="search" v-model="search" id="search_input" class="form-control" placeholder="Search">
+    </div>
   </div>
 </template>
 
@@ -19,8 +19,18 @@ export default {
   computed: {
     ...mapGetters({
       activelist: 'activelistget',
-      sidebar: 'sidebar'
-    })
+      sidebar: 'sidebar',
+      query: 'queryGet'
+    }),
+    search: {
+      get () {
+        var query = this.query
+        return query
+      },
+      set (value) {
+        this.$store.commit('UPDATE_QUERY', value)
+      }
+    }
   },
   methods: {
     activatelist (item) {
@@ -31,9 +41,33 @@ export default {
 </script>
 
 <style lang="scss">
-.nav-group-item:hover {
-  color: #fff;
-  background-color: #9e9e9e;
+@import "../../styles/settings.scss";
+
+.sidebar {
+  position: relative;
+}
+
+.pane-sm {
+  min-width: 220px;
+  background-color: #48525d;
+}
+
+.header {
+  background: $secondary-color-hover;
+  color: $off-white;
+  padding-left: 8px;
+  margin: 0;
+}
+
+.nav-group-item {
+  color: $off-white;
+  cursor: pointer;
+  &.active {
+    color: $secondary-color-hover;
+  }
+  &:hover {
+    background-color: #9e9e9e;
+  }
 }
 
 .btn {
@@ -53,6 +87,41 @@ export default {
     background-color: #fcfcfc;
   }
 }
+
+
+.toolbar-actions{
+  display: flex;
+  position: absolute;
+  left: 0;
+  bottom: 10px;
+  margin: 0;
+  width: 100%;
+  padding: 0
+}
+
+#search_input {
+  border-radius: 13px;
+  margin: 0 8px;
+  height: 26px;
+  background-color: $secondary-color-hover;
+  border-color: $off-white-thin;
+  color: $off-white;
+}
+
+#search_input:focus {
+  border-color: $third-color;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: searchfield-cancel-button;
+}
+
+
+.form-control:focus {
+  border-color: $third-color;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+}
+
 
 .tooltip {
   display: block !important;

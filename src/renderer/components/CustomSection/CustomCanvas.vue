@@ -262,8 +262,10 @@ export default {
   border-left: none;
   overflow: hidden;
   &.active {
-    border: 1px solid $active;
-    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+    border: 1px solid $third-color;
+    canvas {
+      cursor: crosshair;
+    }
   }
   &.scrollable {
     &:hover {

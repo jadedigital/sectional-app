@@ -7,7 +7,6 @@
 
 <template>
   <div class="window">
-    <toolbar></toolbar>
     <div class="window-content">
       <div class="pane-group">
         <sidebar></sidebar>
