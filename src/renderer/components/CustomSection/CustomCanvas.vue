@@ -1,6 +1,23 @@
 <template>
   <div id="canvasPane" class="pane" v-bind:class="{ scrollable: grid.scale > 1, active: drawingMode }" v-on:wheel.ctrl="zoom" v-on:click="drawCoord" v-on:mousemove="hoverOver" v-on:mouseout="hoverOut">
     <canvas id="canvas" v-on:dblclick="drawModeToggle"></canvas>
+    <svg v-bind:height="canvasSVG.height" v-bind:width="canvasSVG.width">
+      <defs>
+        <marker id="markerArrowEnd" markerWidth="13" markerHeight="13" refX="12" refY="6" orient="auto">
+          <path d="M2,2 L2,10 L12,6 L2,2" style="fill: #000000;" />
+        </marker>
+        <marker id="markerArrowStart" markerWidth="13" markerHeight="13" refX="0" refY="6" orient="auto">
+          <path d="M10,2 L10,10 L0,6 L10,2" style="fill: #000000;" />
+        </marker>
+      </defs>
+      <line v-if="grid.tracknode > 0" v-bind:x1="trackSVG.start.x" v-bind:y1="trackSVG.start.y" v-bind:x2="trackSVG.end.x" v-bind:y2="trackSVG.end.y" style="stroke:rgb(255,0,0);stroke-width:1;stroke-dasharray:5" />
+      <path v-if="customCoords[1]" v-bind:d="shapeSVG" style="stroke:purple;stroke-width:1" v-bind:class="[drawingMode ? (dimMode ? 'fillShape' : 'noFill') : 'fillShape']"/>
+      <circle v-for="(nodeVar, key) in nodeSVG" :key="key" v-bind:cx="nodeVar.x" v-bind:cy="nodeVar.y" r="3" stroke-width="0" v-bind:class="[activeCoord === key ? 'activeNode' : 'node']"/>
+      <text v-for="(nodeVar, key) in nodeSVG" :key="key" v-bind:x="nodeVar.x + 2" v-bind:y="nodeVar.y + 2">{{key}}</text>
+      <circle v-if="hoverCoord.active" v-bind:cx="hoverSVG.x" v-bind:cy="hoverSVG.y" r="3" stroke="black" stroke-width="0" fill="red"/>
+      <line v-for="(dimNode, key) in dimHover" :key="key" v-bind:x1="dimNode.x1" v-bind:y1="dimNode.y1" v-bind:x2="dimNode.x2" v-bind:y2="dimNode.y2" style="stroke-width:1;stroke:#000000" v-bind:class="[dimNode.length > 30 ? 'dimArrows' : 'dimArrowsReverse']"/>
+      <text v-for="(dimNode, key) in dimHover" :key="key" v-bind:x="(dimNode.x1 + dimNode.x2) / 2" v-bind:y="(dimNode.y1 + dimNode.y2) / 2" text-anchor="middle">{{dimNode.length}}</text>
+    </svg>
   </div>
 </template>
 
@@ -8,6 +25,13 @@
 import { mapGetters } from 'vuex'
 
 export default {
+  data: function () {
+    return {
+      canvasSVG: {width: '', height: ''},
+      dimCount: 1,
+      dimMouse: {'x': '', 'y': ''}
+    }
+  },
   computed: {
     ...mapGetters({
       customCoords: 'customCoords',
@@ -15,14 +39,85 @@ export default {
       drawCanvasTrigger: 'drawCanvasTrigger',
       drawingMode: 'drawingMode',
       hoverCoord: 'hoverCoord',
-      grid: 'grid'
-    })
+      grid: 'grid',
+      dimensions: 'dimensions',
+      dimMode: 'dimMode'
+    }),
+    trackSVG () {
+      var track = ''
+      if (this.grid.tracknode > 0) {
+        track = {'start': {'x': this.grid.scale * this.customCoords[this.grid.tracknode].x, 'y': this.grid.scale * this.customCoords[this.grid.tracknode].y}, 'end': {'x': this.grid.scale * this.hoverCoord.x, 'y': this.grid.scale * this.hoverCoord.y}}
+      }
+      return track
+    },
+    hoverSVG () {
+      var coord = {'x': this.grid.scale * this.hoverCoord.x, 'y': this.grid.scale * this.hoverCoord.y}
+      return coord
+    },
+    shapeSVG () {
+      var shape = ''
+      for (var coord in this.customCoords) {
+        if (this.customCoords.hasOwnProperty(coord)) {
+          if (coord === '1') {
+            shape += 'M' + (this.grid.scale * Number(this.customCoords[coord]['x'])) + ' ' + this.grid.scale * (Number(this.customCoords[coord]['y']))
+          }
+          shape += ' L' + (this.grid.scale * Number(this.customCoords[coord]['x'])) + ' ' + this.grid.scale * (Number(this.customCoords[coord]['y']))
+        }
+      }
+      if (this.hoverCoord.active && !this.dimMode) {
+        shape += ' L' + (this.grid.scale * Number(this.hoverCoord.x)) + ' ' + this.grid.scale * (Number(this.hoverCoord.y))
+      }
+      if (!this.drawingMode || this.dimMode) {
+        shape += ' Z'
+      }
+      return shape
+    },
+    nodeSVG () {
+      var nodes = JSON.parse(JSON.stringify(this.customCoords))
+      var scale = this.grid.scale
+      for (var coord in this.customCoords) {
+        if (this.customCoords.hasOwnProperty(coord)) {
+          nodes[coord]['x'] = scale * Number(this.customCoords[coord]['x'])
+          nodes[coord]['y'] = scale * Number(this.customCoords[coord]['y'])
+        }
+      }
+      return nodes
+    },
+    dimHover () {
+      var dimHover = JSON.parse(JSON.stringify(this.dimensions))
+      var scale = this.grid.scale
+      var last = 1
+      if (this.dimensions) {
+        last = Object.keys(this.dimensions).length
+      }
+      var a = ''
+      var b = ''
+      var length = ''
+      for (var dim in this.dimensions) {
+        if (this.dimensions.hasOwnProperty(dim)) {
+          dimHover[dim]['x1'] = scale * Number(this.dimensions[dim]['x1'])
+          dimHover[dim]['y1'] = scale * Number(this.dimensions[dim]['y1'])
+          if (this.dimensions[dim]['x2']) {
+            dimHover[dim]['x2'] = scale * Number(this.dimensions[dim]['x2'])
+            dimHover[dim]['y2'] = scale * Number(this.dimensions[dim]['y2'])
+            a = dimHover[dim]['x1'] - dimHover[dim]['x2']
+            b = dimHover[dim]['y1'] - dimHover[dim]['y2']
+            length = Math.round((Math.sqrt(a * a + b * b) / scale) * 100) / 100
+            dimHover[dim]['length'] = length
+          }
+        }
+      }
+      if (this.dimCount === -1) {
+        dimHover[last]['x2'] = scale * this.dimMouse.x
+        dimHover[last]['y2'] = scale * this.dimMouse.y
+      }
+      return dimHover
+    }
   },
   watch: {
     drawCanvasTrigger: function () {
       this.setCanvasSize()
       this.drawCanvas(this.activeCoord)
-      this.$store.commit('CALCULATE_PROP')
     }
   },
   methods: {
@@ -38,6 +133,8 @@ export default {
       var coordPayload = {'x': Math.max(BB.width * this.grid.scale, BB.width), 'y': Math.max(BB.height * this.grid.scale, BB.height)}
       canvas.width = coordPayload.x
       canvas.height = coordPayload.y
+      this.canvasSVG.width = coordPayload.x
+      this.canvasSVG.height = coordPayload.y
     },
     drawCanvas: function (index) {
       var canvas = document.getElementById('canvas')
@@ -64,68 +161,6 @@ export default {
       gridctx.lineWidth = 1
       gridctx.closePath()
       gridctx.stroke()
-
-      var canvasShape = document.getElementById('canvas')
-      var context = canvasShape.getContext('2d')
-      var ctx = canvasShape.getContext('2d')
-      var ctxactive = canvasShape.getContext('2d')
-
-      var padding = 0
-
-      if (this.grid.track) {
-        ctx.beginPath()
-        for (var point in this.customCoords) {
-          if (this.customCoords.hasOwnProperty(point)) {
-            if (point === this.grid.tracknode) {
-              ctx.moveTo(0, scale * (padding + Number(this.customCoords[point]['y'])))
-              ctx.lineTo(bw, scale * (padding + Number(this.customCoords[point]['y'])))
-              ctx.moveTo(scale * (padding + Number(this.customCoords[point]['x'])), 0)
-              ctx.lineTo(scale * (padding + Number(this.customCoords[point]['x'])), bh)
-            }
-          }
-        }
-        ctx.lineWidth = 1
-        ctx.strokeStyle = 'rgba(226, 119, 61, 0.8)'
-        ctx.closePath()
-        ctx.stroke()
-      }
-
-      context.beginPath()
-      for (var coord in this.customCoords) {
-        if (this.customCoords.hasOwnProperty(coord)) {
-          if (coord === '1') {
-            context.moveTo(scale * (padding + Number(this.customCoords[coord]['x'])), scale * (padding + Number(this.customCoords[coord]['y'])))
-          }
-          context.lineTo(scale * (padding + Number(this.customCoords[coord]['x'])), scale * (padding + Number(this.customCoords[coord]['y'])))
-        }
-      }
-      if (this.hoverCoord.active === true) {
-        context.lineTo(scale * (padding + Number(this.hoverCoord.x)), scale * (padding + Number(this.hoverCoord.y)))
-      }
-
-      context.lineWidth = 2
-      context.strokeStyle = '#04acde'
-      if (!this.drawingMode) {
-        context.closePath()
-      }
-      context.stroke()
-
-      for (var points in this.customCoords) {
-        if (this.customCoords.hasOwnProperty(points)) {
-          if (index !== -1 && points === index) {
-            ctxactive.fillStyle = '#E31B56'
-            ctxactive.fillRect(scale * (padding + Number(this.customCoords[points]['x'])) - 3, scale * (padding + Number(this.customCoords[points]['y'])) - 3, 7, 7)
-          } else {
-            ctx.fillStyle = '#999999'
-            ctx.fillRect(scale * (padding + Number(this.customCoords[points]['x'])) - 3, scale * (padding + Number(this.customCoords[points]['y'])) - 3, 7, 7)
-          }
-        }
-      }
-
-      if (this.hoverCoord.active === true) {
-        ctxactive.fillStyle = 'green'
-        ctxactive.fillRect(scale * (padding + Number(this.hoverCoord.x)) - 3, scale * (padding + Number(this.hoverCoord.y)) - 3, 7, 7)
-      }
     },
     drawCoord (e) {
       if (this.drawingMode) {
@@ -166,13 +201,33 @@ export default {
           }
         }
 
-        if (this.customCoords['1'] && (mouseX > (this.customCoords['1']['x'] - nodesnap) && mouseX < (this.customCoords['1']['x'] + nodesnap)) && (mouseY > (this.customCoords['1']['y'] - nodesnap) && mouseY < (this.customCoords['1']['y'] + nodesnap))) {
+        if (this.dimMode && this.dimCount === 1) {
+          var dimPayload = {'x': mouseX, 'y': mouseY, 'side': 1}
+          this.dimCount = this.dimCount * -1
+          this.$store.commit('ADD_DIM', dimPayload)
+        } else if (this.dimMode && this.dimCount === -1) {
+          var dimN = Object.keys(this.dimensions).length
+          if (mouseX > (this.dimensions[dimN]['x1'] - nodesnap) && mouseX < (this.dimensions[dimN]['x1'] + nodesnap)) {
+            mouseX = this.dimensions[dimN]['x1']
+          }
+          if (mouseY > (this.dimensions[dimN]['y1'] - nodesnap) && mouseY < (this.dimensions[dimN]['y1'] + nodesnap)) {
+            mouseY = this.dimensions[dimN]['y1']
+          }
+          dimPayload = {'x': mouseX, 'y': mouseY, 'side': 2}
+          this.dimCount = this.dimCount * -1
+          this.$store.commit('ADD_DIM', dimPayload)
+          this.$store.commit('RESET_TRACKER')
+          this.$store.commit('TOGGLE_DIM_MODE', false)
+          this.$store.commit('TOGGLE_HOVER', false)
+          this.$store.commit('TOGGLE_DRAW')
+        } else if (this.customCoords['1'] && (mouseX > (this.customCoords['1']['x'] - nodesnap) && mouseX < (this.customCoords['1']['x'] + nodesnap)) && (mouseY > (this.customCoords['1']['y'] - nodesnap) && mouseY < (this.customCoords['1']['y'] + nodesnap))) {
           this.$store.commit('RESET_TRACKER')
           this.$store.commit('TOGGLE_HOVER', false)
           this.$store.commit('TOGGLE_DRAW')
         } else {
           var payloadData = {'coordx': mouseX, 'coordy': mouseY}
           this.$store.commit('ADD_COORD', payloadData)
+          this.$store.commit('CALCULATE_PROP')
         }
       }
     },
@@ -211,34 +266,47 @@ export default {
         }
 
         if (this.grid.track) {
+          var trackPayload = {}
           for (var point in this.customCoords) {
             if (this.customCoords.hasOwnProperty(point)) {
               if (mouseX > (this.customCoords[point]['x'] - nodesnap) && mouseX < (this.customCoords[point]['x'] + nodesnap)) {
                 mouseX = this.customCoords[point]['x']
                 if (Number(point) !== Number(Object.keys(this.customCoords).length)) {
-                  this.$store.commit('SET_TRACKER', point)
+                  trackPayload = {'point': point, 'axis': 'y'}
+                  this.$store.commit('SET_TRACKER', trackPayload)
                 }
               }
               if (mouseY > (this.customCoords[point]['y'] - nodesnap) && mouseY < (this.customCoords[point]['y'] + nodesnap)) {
                 mouseY = this.customCoords[point]['y']
                 if (Number(point) !== Number(Object.keys(this.customCoords).length)) {
-                  this.$store.commit('SET_TRACKER', point)
+                  trackPayload = {'point': point, 'axis': 'x'}
+                  this.$store.commit('SET_TRACKER', trackPayload)
                 }
               }
             }
           }
         }
+        if (this.dimMode && this.dimCount === -1) {
+          var dimN = Object.keys(this.dimensions).length
+          if (mouseX > (this.dimensions[dimN]['x1'] - nodesnap) && mouseX < (this.dimensions[dimN]['x1'] + nodesnap)) {
+            mouseX = this.dimensions[dimN]['x1']
+          }
+          if (mouseY > (this.dimensions[dimN]['y1'] - nodesnap) && mouseY < (this.dimensions[dimN]['y1'] + nodesnap)) {
+            mouseY = this.dimensions[dimN]['y1']
+          }
+        }
 
         var coordPayload = {'x': mouseX, 'y': mouseY}
         this.$store.commit('SET_HOVER_COORD', coordPayload)
+        this.dimMouse.x = mouseX
+        this.dimMouse.y = mouseY
         this.$store.commit('TOGGLE_HOVER', true)
-        this.drawCanvas()
       }
     },
     hoverOut () {
       if (this.drawingMode) {
+        this.$store.commit('RESET_TRACKER')
         this.$store.commit('TOGGLE_HOVER', false)
-        this.drawCanvas()
       }
     },
     initialize () {
@@ -273,6 +341,39 @@ export default {
       overflow-x: scroll;
     }
   }
+}
+
+svg {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  pointer-events: none;
+}
+
+.activeNode {
+  fill: $third-color;
+}
+
+.node {
+  fill: $fourth-color;
+}
+
+.fillShape{
+  fill: rgba(223, 233, 255, 0.5);
+}
+
+.noFill{
+  fill: none;
+}
+
+.dimArrows {
+  marker-start:url(#markerArrowStart);
+  marker-end:url(#markerArrowEnd);
+}
+
+.dimArrowsReverse {
+  marker-start:url(#markerArrowEnd);
+  marker-end:url(#markerArrowStart);
 }
 
 ::-webkit-scrollbar {

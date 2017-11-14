@@ -28,6 +28,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "../../styles/settings.scss";
 .pane.properties {
   border-left-width: 2px;
   border-left-color: #fff;
@@ -38,6 +39,9 @@ export default {
 .properties-overlay {
   width: 100%;
   height: 100%;
+  .nav-group-item {
+    color: $secondary-color-hover;
+  }
 }
 
 </style>

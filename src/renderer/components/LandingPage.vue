@@ -24,6 +24,19 @@
   import Footbar from './LandingPage/Footbar'
 
   export default {
+    methods: {
+      keydowns (e) {
+        if (e.keyCode === 70 && e.ctrlKey) {
+          document.getElementById('search_input').focus()
+        }
+      }
+    },
+    created: function () {
+      window.addEventListener('keydown', this.keydowns)
+    },
+    destroyed: function () {
+      window.removeEventListener('keydown', this.keydowns)
+    },
     components: {
       Toolbar,
       Sidebar,

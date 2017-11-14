@@ -36,10 +36,14 @@ export default {
     },
     resizeProp (e) {
       if (this.propertiesPane.resizing === true) {
+        var canvas = document.getElementById('canvas')
+        var canvasWidth = canvas.getBoundingClientRect().width
         var prop = document.getElementById('properties')
+        var propWidth = prop.getBoundingClientRect().width
         var propX = prop.getBoundingClientRect().left
         var mouseX = e.clientX
-        var newWidth = this.propertiesPane.width + (propX - mouseX)
+        var maxWidth = (canvasWidth + propWidth) / 2
+        var newWidth = Math.max(Math.min(maxWidth, this.propertiesPane.width + (propX - mouseX)), 100)
         this.$store.commit('PROP_RESIZE', newWidth)
         this.$store.commit('REDRAW')
       }

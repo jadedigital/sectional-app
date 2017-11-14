@@ -1,12 +1,18 @@
 <template>
   <div class="pane-sm sidebar">
-    <div class="form-group">
+    <div class="form-group wrapper">
       <h5 class="header">
         <span>Coordinates</span>
       </h5>
       <div class="coordToolbar">
+        <button class="btn btn-default" v-tooltip="'Save Section'">
+          <span class="fa fa-save"></span>
+        </button>
         <button id="draw-btn" class="btn btn-default" v-bind:class="{ active: drawingMode }" v-on:click="drawModeToggle()" v-tooltip="'Draw Mode'">
           <span class="fa fa-pencil"></span>
+        </button>
+        <button id="dim-btn" class="btn btn-default" v-bind:class="{ active: dimMode }" v-on:click="dimModeToggle()" v-tooltip="'Add Dimension'">
+          <span class="fa fa-arrows-h"></span>
         </button>
         <button class="btn btn-default" v-on:click="clearCoords()" v-tooltip="'Clear All'">
           <span class="fa fa-eraser"></span>
@@ -30,9 +36,7 @@
       </div>
     </div>
     <div class="custom-actions">
-      <button class="btn btn-default" v-tooltip="'Save Section'">
-        <span class="fa fa-save"></span>
-      </button>
+      
     </div>
   </div>
 </template>
@@ -50,11 +54,18 @@ export default {
   computed: {
     ...mapGetters({
       customCoords: 'customCoords',
-      drawingMode: 'drawingMode'
+      drawingMode: 'drawingMode',
+      dimMode: 'dimMode'
     })
   },
   methods: {
     addCoord: function () {
+      if (this.coordx === '') {
+        this.coordx = 0
+      }
+      if (this.coordy === '') {
+        this.coordy = 0
+      }
       var payloadData = {'coordx': this.coordx, 'coordy': this.coordy}
       this.$store.commit('ADD_COORD', payloadData)
       this.coordx = ''
@@ -63,6 +74,7 @@ export default {
     updateCoord (index, e, axis) {
       var payloadData = {'index': index, 'value': e.target.value, 'axis': axis}
       this.$store.commit('UPDATE_COORD', payloadData)
+      this.$store.commit('CALCULATE_PROP')
     },
     activeCoord (index) {
       this.$store.commit('ACTIVATE_COORD', index)
@@ -77,6 +89,13 @@ export default {
       document.getElementById('draw-btn').blur()
       this.$store.commit('TOGGLE_HOVER', false)
       this.$store.commit('TOGGLE_DRAW')
+    },
+    dimModeToggle () {
+      document.getElementById('dim-btn').blur()
+      if (!this.drawingMode) {
+        this.$store.commit('TOGGLE_DRAW')
+      }
+      this.$store.commit('TOGGLE_DIM_MODE', true)
     }
   }
 }
@@ -86,16 +105,27 @@ export default {
 @import "../../styles/settings.scss";
 .pane-sm {
   min-width: 220px;
-  background-color: #48525d;
+  background-color: $secondary-color;
+  overflow: hidden;
+  position: relative;
+  .wrapper {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: -12px;
+    overflow-y: scroll;
+  }
 }
 
 .coordx, .coordy {
   width: 50%;
-  background-color: #48525d;
+  background-color: $secondary-color-hover;
   border: none;
   color: $off-white;
   border-bottom: 1px solid $off-white;
   text-align: center;
+  cursor: text;
   &:focus {
     outline: none;
   }
@@ -212,6 +242,43 @@ export default {
     &:hover {
       background-color: #3d3d3d;
     }
+  }
+}
+
+.btn {
+  cursor: pointer;
+  span {
+    cursor: pointer;
+  }
+}
+
+
+.tooltip {
+  display: block !important;
+  padding: 4px;
+  z-index: 10000;
+
+  .tooltip-inner {
+    background: #fff;
+    padding: 1px 8px;
+    border: solid 1px rgba(201, 201, 201, 0.25);
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  .tooltip-arrow {
+    display: none;
+  }
+
+  &[aria-hidden='true'] {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .3s, visibility .3s;
+  }
+
+  &[aria-hidden='false'] {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity .3s;
   }
 }
 </style>
