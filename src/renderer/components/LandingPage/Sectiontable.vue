@@ -1,16 +1,18 @@
 <template>
   <div class="pane sections">
-    <table class="vu-table" v-if="columns[1]">
+    <table class="vu-table">
       <thead>
         <tr>
-          <th v-for="(head, index) in columns" :key='index' v-on:click="sortBy(head)" v-bind:class="{active: sortkey == head}" nowrap>{{head}}
-            <sortarrows v-bind:arrowcolumn="head"></sortarrows>
+          <th v-for="(head, key) in columns" :key='key' v-on:click="sortBy(key)" v-bind:class="{active: sortkey == key}" v-tooltip="head.displayname" nowrap>
+            <span v-html="head.symbol"></span>
+            <span class="units" v-show="head.unit" v-html="units[key]"></span>
+            <sortarrows v-bind:arrowcolumn="key"></sortarrows>
           </th>
         </tr>
       </thead>
       <tbody class="vu-body">
         <tr class="vu-row" v-for="item in tableFilter" :key="item.designation">
-          <td v-for="(head, index) in columns" :key='index'>{{item[head]}}</td>
+          <td v-for="(head, key) in columns" :key='key'>{{item[key] | exponent}}</td>
         </tr>
       </tbody>
     </table>
@@ -41,6 +43,27 @@ export default {
         list = this.orderBy(list, this.sortorders[this.sortkey], this.sortkey)
       }
       return list
+    },
+    units: function () {
+      var units = {}
+      for (var key in this.columns) {
+        units[key] = '(' + this.columns[key].unit + ')'
+      }
+      return units
+    }
+  },
+  filters: {
+    capitalize: function (value) {
+      if (!value) return ''
+      value = value.toString()
+      return value.charAt(0).toUpperCase() + value.slice(1)
+    },
+    exponent: function (value) {
+      if (isNaN(value) || value < 10000) {
+        return value
+      } else {
+        return value.toExponential(2)
+      }
     }
   },
   methods: {
@@ -75,14 +98,34 @@ export default {
 }
 </script>
 
-<style>
-th.active {
-  background-color: #ECECEC;
+<style lang="scss">
+@import "../../styles/settings.scss";
+
+.vu-table {
+  th {
+    color: $off-white;
+    background-color: $secondary-color-hover;
+    border: 0;
+    cursor: pointer;
+    .units {
+      font-size: 10px;
+    }
+    span {
+      cursor: pointer;
+    }
+  }
+  th.active {
+    background-color: $secondary-color;
+  }
+  th:nth-child(n+2), td:nth-child(n+2) {
+    text-align: center;
+  }
 }
 
+
 .vu-row:hover {
-  color: #fff;
-  background-color: #9e9e9e;
+  color: $off-white;
+  background-color: $secondary-color;
 }
 
 .sections {

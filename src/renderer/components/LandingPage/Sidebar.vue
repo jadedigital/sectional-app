@@ -106,6 +106,7 @@ export default {
   background-color: $secondary-color-hover;
   border-color: $off-white-thin;
   color: $off-white;
+  cursor: text;
 }
 
 #search_input:focus {
