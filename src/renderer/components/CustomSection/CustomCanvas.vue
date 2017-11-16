@@ -9,14 +9,22 @@
         <marker id="markerArrowStart" markerWidth="13" markerHeight="13" refX="0" refY="6" orient="auto">
           <path d="M10,2 L10,10 L0,6 L10,2" style="fill: #000000;" />
         </marker>
+        <marker id="markerSmallEnd" markerWidth="22" markerHeight="13" refX="22" refY="6" orient="auto">
+          <path d="M12,2 L12,10 L22,6 L12,2" style="fill: #000000;" />
+          <polyline points="0 6, 12 6, 20 6" style="fill: none; stroke: #000000;" />
+        </marker>
+        <marker id="markerSmallStart" markerWidth="22" markerHeight="13" refX="0" refY="6" orient="auto">
+          <path d="M10,2 L10,10 L0,6 L10,2" style="fill: #000000;" />
+          <polyline points="2 6, 10 6, 22 6" style="fill: none; stroke: #000000;" />
+        </marker>
       </defs>
       <line v-if="grid.tracknode > 0" v-bind:x1="trackSVG.start.x" v-bind:y1="trackSVG.start.y" v-bind:x2="trackSVG.end.x" v-bind:y2="trackSVG.end.y" style="stroke:rgb(255,0,0);stroke-width:1;stroke-dasharray:5" />
       <path v-if="customCoords[1]" v-bind:d="shapeSVG" style="stroke:purple;stroke-width:1" v-bind:class="[drawingMode ? (dimMode ? 'fillShape' : 'noFill') : 'fillShape']"/>
       <circle v-for="(nodeVar, key) in nodeSVG" :key="key" v-bind:cx="nodeVar.x" v-bind:cy="nodeVar.y" r="3" stroke-width="0" v-bind:class="[activeCoord === key ? 'activeNode' : 'node']"/>
       <text v-for="(nodeVar, key) in nodeSVG" :key="key" v-bind:x="nodeVar.x + 2" v-bind:y="nodeVar.y + 2">{{key}}</text>
       <circle v-if="hoverCoord.active" v-bind:cx="hoverSVG.x" v-bind:cy="hoverSVG.y" r="3" stroke="black" stroke-width="0" fill="red"/>
-      <line v-for="(dimNode, key) in dimHover" :key="key" v-bind:x1="dimNode.x1" v-bind:y1="dimNode.y1" v-bind:x2="dimNode.x2" v-bind:y2="dimNode.y2" style="stroke-width:1;stroke:#000000" v-bind:class="[dimNode.length > 30 ? 'dimArrows' : 'dimArrowsReverse']"/>
-      <text v-for="(dimNode, key) in dimHover" :key="key" v-bind:x="(dimNode.x1 + dimNode.x2) / 2" v-bind:y="(dimNode.y1 + dimNode.y2) / 2" text-anchor="middle">{{dimNode.length}}</text>
+      <line v-for="(dimNode, key) in dimHover" :key="key" v-bind:stroke-dasharray="(((dimNode.length * grid.scale) - 50) / 2) + ', 50'" v-bind:x1="dimNode.x1" v-bind:y1="dimNode.y1" v-bind:x2="dimNode.x2" v-bind:y2="dimNode.y2" v-bind:class="[dimNode.length * grid.scale > 70 ? 'dimArrows' : 'dimArrowsReverse']"/>
+      <text v-for="(dimNode, key) in dimHover" :key="key" v-bind:x="(dimNode.x1 + dimNode.x2) / 2" v-bind:y="((dimNode.y1 + dimNode.y2) / 2) + 6" text-anchor="middle">{{dimNode.length}}</text>
     </svg>
   </div>
 </template>
@@ -110,6 +118,10 @@ export default {
       if (this.dimCount === -1) {
         dimHover[last]['x2'] = scale * this.dimMouse.x
         dimHover[last]['y2'] = scale * this.dimMouse.y
+        a = dimHover[last]['x1'] - dimHover[last]['x2']
+        b = dimHover[last]['y1'] - dimHover[last]['y2']
+        length = Math.round((Math.sqrt(a * a + b * b) / scale) * 100) / 100
+        dimHover[last]['length'] = length
       }
       return dimHover
     }
@@ -369,11 +381,15 @@ svg {
 .dimArrows {
   marker-start:url(#markerArrowStart);
   marker-end:url(#markerArrowEnd);
+  stroke-width: 1;
+  stroke: rgba(0, 0, 0, 1)
 }
 
 .dimArrowsReverse {
-  marker-start:url(#markerArrowEnd);
-  marker-end:url(#markerArrowStart);
+  marker-start:url(#markerSmallEnd);
+  marker-end:url(#markerSmallStart);
+  stroke-width: 1;
+  stroke: rgba(0, 0, 0, 0)
 }
 
 ::-webkit-scrollbar {

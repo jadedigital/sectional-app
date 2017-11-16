@@ -22,7 +22,11 @@
       </div>
     </div>
     <div class="distance-input" v-show="drawAlongDist.active">
-      <div class="sim-input"><span class="caret">></span>{{drawAlongDist.dist}}<span class="blinking-cursor">|</span> mm</div>
+      <div class="sim-input">
+        <span class="caret"></span>{{drawAlongDist.dist}}<span v-show="!drawAlongDist.angleActive" class="blinking-cursor">|</span> mm
+        <span v-show="drawAlongDist.angleActive" class="angle">< {{drawAlongDist.angle}}<span class="blinking-cursor">|</span> deg </span>
+      
+      </div>
     </div>
   </footer>
 </template>

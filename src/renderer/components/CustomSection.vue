@@ -66,6 +66,9 @@ export default {
       if (e.which === 8 && this.drawAlongDist.active) {
         this.$store.commit('DEL_DRAW_ALONG_DIST')
       }
+      if (e.which === 188 && e.shiftKey === true) {
+        this.$store.commit('DRAW_ALONG_ANGLE')
+      }
     },
     resize () {
       this.$store.commit('REDRAW')

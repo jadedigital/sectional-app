@@ -11,11 +11,14 @@
         <button id="draw-btn" class="btn btn-default" v-bind:class="{ active: drawingMode }" v-on:click="drawModeToggle()" v-tooltip="'Draw Mode'">
           <span class="fa fa-pencil"></span>
         </button>
-        <button id="dim-btn" class="btn btn-default" v-bind:class="{ active: dimMode }" v-on:click="dimModeToggle()" v-tooltip="'Add Dimension'">
-          <span class="fa fa-arrows-h"></span>
-        </button>
-        <button class="btn btn-default" v-on:click="clearCoords()" v-tooltip="'Clear All'">
+        <button class="btn btn-default" v-on:click="clearCoords()" v-tooltip="'Delete Coordinates'">
           <span class="fa fa-eraser"></span>
+        </button>
+        <button id="dim-btn" class="btn btn-default" v-bind:class="{ active: dimMode }" v-on:click="dimModeToggle()" v-tooltip="'Add Dimension'">
+          <span class="fa fa-compress"></span>
+        </button>
+        <button id="dim-btn-del" class="btn btn-default" v-on:click="dimModeToggle()" v-tooltip="'Delete Dimensions'">
+          <span class="fa fa-remove"></span>
         </button>
       </div>
       <div>

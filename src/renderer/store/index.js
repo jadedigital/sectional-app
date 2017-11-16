@@ -26,7 +26,7 @@ export default new Vuex.Store({
     hoverCoord: {'active': false, 'x': 0, 'y': 0},
     propertiesPane: {width: 200, resizing: false},
     grid: {'size': 20, 'units': 'mm', 'snap': false, 'ortho': false, 'scale': 1, 'track': true, 'tracknode': 0, 'trackAxis': 'x'},
-    drawAlongDist: {'dist': '', 'active': false},
+    drawAlongDist: {'dist': '', 'active': false, 'angle': '', 'angleActive': false},
     dimensions: {},
     dimMode: false
   },
@@ -145,39 +145,69 @@ export default new Vuex.Store({
       }
     },
     [types.ADD_DRAW_ALONG_DIST] (state, distPayload) {
-      var dist = state.drawAlongDist.dist
-      dist = '' + dist + distPayload
-      state.drawAlongDist.dist = dist
+      var dist = ''
+      if (!state.drawAlongDist.angleActive) {
+        dist = state.drawAlongDist.dist
+        dist = '' + dist + distPayload
+        state.drawAlongDist.dist = dist
+      } else {
+        dist = state.drawAlongDist.angle
+        dist = '' + dist + distPayload
+        state.drawAlongDist.angle = dist
+      }
       state.drawAlongDist.active = true
     },
     [types.DRAW_ALONG_DIST] (state) {
       var index = Object.keys(state.customCoords).length
       var x1 = state.customCoords[index].x
       var y1 = state.customCoords[index].y
+      var x3 = ''
+      var y3 = ''
       var x2 = state.hoverCoord.x
       var y2 = state.hoverCoord.y
+      var degrees = state.drawAlongDist.angle
       var length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))
       var newLength = state.drawAlongDist.dist
       var lengthRatio = newLength / length
 
-      var x3 = (((1 - lengthRatio) * x1) + (lengthRatio * x2))
-      var y3 = (((1 - lengthRatio) * y1) + (lengthRatio * y2))
+      if (state.drawAlongDist.angle === '') {
+        x3 = (((1 - lengthRatio) * x1) + (lengthRatio * x2))
+        y3 = (((1 - lengthRatio) * y1) + (lengthRatio * y2))
+      } else {
+        x3 = x1 + Math.cos((360 - degrees) * (Math.PI / 180)) * newLength
+        y3 = y1 + Math.sin((360 - degrees) * (Math.PI / 180)) * newLength
+      }
       x3 = Math.round(x3 * 100) / 100
       y3 = Math.round(y3 * 100) / 100
 
       Vue.set(state.customCoords, (index + 1), {'x': x3, 'y': y3})
       state.drawAlongDist.dist = ''
       state.drawAlongDist.active = false
-      state.drawCanvasTrigger++
+      state.drawAlongDist.angle = ''
+      state.drawAlongDist.angleActive = false
     },
     [types.CLEAR_DRAW_DIST] (state) {
       state.drawAlongDist.dist = ''
       state.drawAlongDist.active = false
+      state.drawAlongDist.angle = ''
+      state.drawAlongDist.angleActive = false
     },
     [types.DEL_DRAW_ALONG_DIST] (state) {
-      var dist = state.drawAlongDist.dist
-      dist = dist.slice(0, -1)
-      state.drawAlongDist.dist = dist
+      var dist = ''
+      if (!state.drawAlongDist.angleActive) {
+        dist = state.drawAlongDist.dist
+        dist = dist.slice(0, -1)
+        state.drawAlongDist.dist = dist
+      } else if (state.drawAlongDist.angle === '') {
+        state.drawAlongDist.angleActive = false
+      } else {
+        dist = state.drawAlongDist.angle
+        dist = dist.slice(0, -1)
+        state.drawAlongDist.angle = dist
+      }
+    },
+    [types.DRAW_ALONG_ANGLE] (state) {
+      state.drawAlongDist.angleActive = true
     },
     [types.CALCULATE_PROP] (state) {
       var Area = 0
