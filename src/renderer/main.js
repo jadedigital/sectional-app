@@ -18,11 +18,16 @@ import 'font-awesome/fonts/fontawesome-webfont.woff2'
 import 'font-awesome/fonts/fontawesome-webfont.woff'
 import 'font-awesome/fonts/fontawesome-webfont.ttf'
 
+var options = {
+  defaultTrigger: 'hover',
+  defaultDelay: 750
+}
+
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
 Vue.use(VueFire)
-Vue.use(VTooltip)
+Vue.use(VTooltip, options)
 Vue.use(vueSlider)
 
 /* eslint-disable no-new */
