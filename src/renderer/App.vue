@@ -1,10 +1,10 @@
 <template>
   <div id="app">
     <div class="link-bar">
-      <router-link class="btn btn-default" to="/" v-tooltip.right-end="{content:'Section Database'}">
+      <router-link class="btn btn-default" to="/" title="Section Database">
         <span class="fa fa-database"></span>
       </router-link>
-      <router-link class="btn btn-default" to="/custom" v-tooltip.right-end="{content:'Build Custom Section'}">
+      <router-link class="btn btn-default" to="/custom" title="Build Custom Section">
         <span class="fa fa-edit"></span>
       </router-link>
     </div>
