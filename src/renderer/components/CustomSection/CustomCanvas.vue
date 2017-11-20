@@ -249,8 +249,6 @@ export default {
     hoverOver (e) {
       if (this.drawingMode) {
         this.$store.commit('RESET_TRACKER')
-        e.preventDefault()
-        e.stopPropagation()
         var canvas = document.getElementById('canvas')
         var BB = canvas.getBoundingClientRect()
         var scale = this.grid.scale
@@ -296,7 +294,7 @@ export default {
               if (mouseX > (this.customCoords[point]['x'] - nodesnap) && mouseX < (this.customCoords[point]['x'] + nodesnap)) {
                 mouseX = this.customCoords[point]['x']
                 diffX = Math.abs(this.customCoords[point]['y'] - mouseY)
-                if ((!closest.keyX || diffX < closest.diffX) && Number(point) !== Number(Object.keys(this.customCoords).length)) {
+                if (!closest.keyX || diffX < closest.diffX) {
                   closest.keyX = point
                   closest.diffX = diffX
                 }
@@ -304,7 +302,7 @@ export default {
               if (mouseY > (this.customCoords[point]['y'] - nodesnap) && mouseY < (this.customCoords[point]['y'] + nodesnap)) {
                 mouseY = this.customCoords[point]['y']
                 diffY = Math.abs(this.customCoords[point]['x'] - mouseX)
-                if ((!closest.keyY || diffY < closest.diffY) && Number(point) !== Number(Object.keys(this.customCoords).length)) {
+                if (!closest.keyY || diffY < closest.diffY) {
                   closest.keyY = point
                   closest.diffY = diffY
                 }
