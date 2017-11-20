@@ -3,7 +3,7 @@
     <table class="vu-table">
       <thead>
         <tr>
-          <th v-for="(head, key) in columns" :key='key' v-on:click="sortBy(key)" v-bind:class="{active: sortkey == key}" v-tooltip="head.displayname" nowrap>
+          <th v-for="(head, key) in columns" :key='key' v-on:click="sortBy(key)" v-bind:class="{active: sortkey == key}" v-bind:title="head.displayname" nowrap>
             <span v-html="head.symbol"></span>
             <span class="units" v-show="head.unit" v-html="units[key]"></span>
             <sortarrows v-bind:arrowcolumn="key"></sortarrows>

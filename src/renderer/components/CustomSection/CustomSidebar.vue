@@ -5,19 +5,19 @@
         <span>Coordinates</span>
       </h5>
       <div class="coordToolbar">
-        <button class="btn btn-default" v-tooltip="'Save Section'">
+        <button class="btn btn-default" title="Save Section">
           <span class="fa fa-save"></span>
         </button>
-        <button id="draw-btn" class="btn btn-default" v-bind:class="{ active: drawingMode }" v-on:click="drawModeToggle()" v-tooltip="'Draw Mode'">
+        <button id="draw-btn" class="btn btn-default" v-bind:class="{ active: drawingMode }" v-on:click="drawModeToggle()" title="Draw Mode">
           <span class="fa fa-pencil"></span>
         </button>
-        <button class="btn btn-default" v-on:click="clearCoords()" v-tooltip="'Delete Coordinates'">
+        <button class="btn btn-default" v-on:click="clearCoords()" title="Delete Coordinates">
           <span class="fa fa-eraser"></span>
         </button>
-        <button id="dim-btn" class="btn btn-default" v-bind:class="{ active: dimMode }" v-on:click="dimModeToggle()" v-tooltip="'Add Dimension'">
+        <button id="dim-btn" class="btn btn-default" v-bind:class="{ active: dimMode }" v-on:click="dimModeToggle()" title="Add Dimension">
           <span class="fa fa-compress"></span>
         </button>
-        <button id="dim-btn-del" class="btn btn-default" v-on:click="dimModeToggle()" v-tooltip="'Delete Dimensions'">
+        <button id="dim-btn-del" class="btn btn-default" v-on:click="dimModeToggle()" title="Delete Dimensions">
           <span class="fa fa-remove"></span>
         </button>
       </div>
@@ -31,7 +31,7 @@
           </div>
         </div>
         <div class="addcoord" v-show="!drawingMode">
-          <span class="coordIndex fa fa-plus-circle" v-on:click="addCoord()" v-tooltip="'Add Coordinate'"></span>
+          <span class="coordIndex fa fa-plus-circle" v-on:click="addCoord()" title="Add Coordinate"></span>
           <span class="coordwrap">
             <input v-model="coordx" class="coordx" type="number" placeholder="0"><input v-model="coordy" class="coordy" type="number" placeholder="0">
           </span>
