@@ -18,7 +18,7 @@
           <polyline points="2 6, 10 6, 22 6" style="fill: none; stroke: #000000;" />
         </marker>
       </defs>
-      <line v-if="grid.tracknode > 0" v-bind:x1="trackSVG.start.x" v-bind:y1="trackSVG.start.y" v-bind:x2="trackSVG.end.x" v-bind:y2="trackSVG.end.y" style="stroke:rgb(255,0,0);stroke-width:1;stroke-dasharray:5" />
+      <line v-for="(tracker, key) in trackSVG" :key="key" v-bind:x1="tracker.start.x" v-bind:y1="tracker.start.y" v-bind:x2="tracker.end.x" v-bind:y2="tracker.end.y" style="stroke:rgb(255,0,0);stroke-width:1;stroke-dasharray:5" />
       <path v-if="customCoords[1]" v-bind:d="shapeSVG" style="stroke:purple;stroke-width:1" v-bind:class="[drawingMode ? (dimMode ? 'fillShape' : 'noFill') : 'fillShape']"/>
       <circle v-for="(nodeVar, key) in nodeSVG" :key="key" v-bind:cx="nodeVar.x" v-bind:cy="nodeVar.y" r="3" stroke-width="0" v-bind:class="[activeCoord === key ? 'activeNode' : 'node']"/>
       <text v-for="(nodeVar, key) in nodeSVG" :key="key" v-bind:x="nodeVar.x + 2" v-bind:y="nodeVar.y + 2">{{key}}</text>
@@ -52,9 +52,12 @@ export default {
       dimMode: 'dimMode'
     }),
     trackSVG () {
-      var track = ''
-      if (this.grid.tracknode > 0) {
-        track = {'start': {'x': this.grid.scale * this.customCoords[this.grid.tracknode].x, 'y': this.grid.scale * this.customCoords[this.grid.tracknode].y}, 'end': {'x': this.grid.scale * this.hoverCoord.x, 'y': this.grid.scale * this.hoverCoord.y}}
+      var track = {}
+      if (this.grid.tracknode.x > 0) {
+        track[1] = {'start': {'x': this.grid.scale * this.customCoords[this.grid.tracknode.x].x, 'y': this.grid.scale * this.customCoords[this.grid.tracknode.x].y}, 'end': {'x': this.grid.scale * this.hoverCoord.x, 'y': this.grid.scale * this.hoverCoord.y}}
+      }
+      if (this.grid.tracknode.y > 0) {
+        track[2] = {'start': {'x': this.grid.scale * this.customCoords[this.grid.tracknode.y].x, 'y': this.grid.scale * this.customCoords[this.grid.tracknode.y].y}, 'end': {'x': this.grid.scale * this.hoverCoord.x, 'y': this.grid.scale * this.hoverCoord.y}}
       }
       return track
     },
@@ -277,26 +280,41 @@ export default {
           mouseY = this.customCoords['1']['y']
         }
 
+        var closest = {
+          keyX: null,
+          diffX: null,
+          keyY: null,
+          diffY: null
+        }
+        var diffX = ''
+        var diffY = ''
+
         if (this.grid.track) {
           var trackPayload = {}
           for (var point in this.customCoords) {
             if (this.customCoords.hasOwnProperty(point)) {
               if (mouseX > (this.customCoords[point]['x'] - nodesnap) && mouseX < (this.customCoords[point]['x'] + nodesnap)) {
                 mouseX = this.customCoords[point]['x']
-                if (Number(point) !== Number(Object.keys(this.customCoords).length)) {
-                  trackPayload = {'point': point, 'axis': 'y'}
-                  this.$store.commit('SET_TRACKER', trackPayload)
+                diffX = Math.abs(this.customCoords[point]['y'] - mouseY)
+                if ((!closest.keyX || diffX < closest.diffX) && Number(point) !== Number(Object.keys(this.customCoords).length)) {
+                  closest.keyX = point
+                  closest.diffX = diffX
                 }
               }
               if (mouseY > (this.customCoords[point]['y'] - nodesnap) && mouseY < (this.customCoords[point]['y'] + nodesnap)) {
                 mouseY = this.customCoords[point]['y']
-                if (Number(point) !== Number(Object.keys(this.customCoords).length)) {
-                  trackPayload = {'point': point, 'axis': 'x'}
-                  this.$store.commit('SET_TRACKER', trackPayload)
+                diffY = Math.abs(this.customCoords[point]['x'] - mouseX)
+                if ((!closest.keyY || diffY < closest.diffY) && Number(point) !== Number(Object.keys(this.customCoords).length)) {
+                  closest.keyY = point
+                  closest.diffY = diffY
                 }
               }
             }
           }
+          trackPayload = {'point': closest.keyX, 'axis': 'y'}
+          this.$store.commit('SET_TRACKER', trackPayload)
+          trackPayload = {'point': closest.keyY, 'axis': 'x'}
+          this.$store.commit('SET_TRACKER', trackPayload)
         }
         if (this.dimMode && this.dimCount === -1) {
           var dimN = Object.keys(this.dimensions).length

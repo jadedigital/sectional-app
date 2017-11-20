@@ -25,7 +25,7 @@ export default new Vuex.Store({
     canvasSize: {'x': 0, 'y': 0},
     hoverCoord: {'active': false, 'x': 0, 'y': 0},
     propertiesPane: {width: 200, resizing: false},
-    grid: {'size': 20, 'units': 'mm', 'snap': false, 'ortho': false, 'scale': 1, 'track': true, 'tracknode': 0, 'trackAxis': 'x'},
+    grid: {'size': 20, 'units': 'mm', 'snap': false, 'ortho': false, 'scale': 1, 'track': true, 'tracknode': {'x': 0, 'y': 0}},
     drawAlongDist: {'dist': '', 'active': false, 'angle': '', 'angleActive': false},
     dimensions: {},
     dimMode: false
@@ -132,11 +132,11 @@ export default new Vuex.Store({
       state.grid.ortho = !state.grid.ortho
     },
     [types.SET_TRACKER] (state, trackPayload) {
-      state.grid.tracknode = trackPayload.point
-      state.grid.trackAxis = trackPayload.axis
+      state.grid.tracknode[trackPayload.axis] = trackPayload.point
     },
     [types.RESET_TRACKER] (state) {
-      state.grid.tracknode = 0
+      state.grid.tracknode.x = 0
+      state.grid.tracknode.y = 0
     },
     [types.TOGGLE_TRACK] (state) {
       state.grid.track = !state.grid.track
