@@ -18,13 +18,16 @@
           <polyline points="2 6, 10 6, 22 6" style="fill: none; stroke: #000000;" />
         </marker>
       </defs>
-      <line v-for="(tracker, key) in trackSVG" :key="key" v-bind:x1="tracker.start.x" v-bind:y1="tracker.start.y" v-bind:x2="tracker.end.x" v-bind:y2="tracker.end.y" style="stroke:rgb(255,0,0);stroke-width:1;stroke-dasharray:5" />
-      <path v-if="customCoords[1]" v-bind:d="shapeSVG" style="stroke:purple;stroke-width:1" v-bind:class="[drawingMode ? (dimMode ? 'fillShape' : 'noFill') : 'fillShape']"/>
-      <circle v-for="(nodeVar, key) in nodeSVG" :key="key" v-bind:cx="nodeVar.x" v-bind:cy="nodeVar.y" r="3" stroke-width="0" v-bind:class="[activeCoord === key ? 'activeNode' : 'node']"/>
-      <text v-for="(nodeVar, key) in nodeSVG" :key="key" v-bind:x="nodeVar.x + 2" v-bind:y="nodeVar.y + 2">{{key}}</text>
-      <circle v-if="hoverCoord.active" v-bind:cx="hoverSVG.x" v-bind:cy="hoverSVG.y" r="3" stroke="black" stroke-width="0" fill="red"/>
-      <line v-for="(dimNode, key) in dimHover" :key="key" v-bind:stroke-dasharray="(((dimNode.length * grid.scale) - 50) / 2) + ', 50'" v-bind:x1="dimNode.x1" v-bind:y1="dimNode.y1" v-bind:x2="dimNode.x2" v-bind:y2="dimNode.y2" v-bind:class="[dimNode.length * grid.scale > 70 ? 'dimArrows' : 'dimArrowsReverse']"/>
-      <text v-for="(dimNode, key) in dimHover" :key="key" v-bind:x="(dimNode.x1 + dimNode.x2) / 2" v-bind:y="((dimNode.y1 + dimNode.y2) / 2) + 6" text-anchor="middle">{{dimNode.length}}</text>
+      <line v-for="(tracker, key) in trackSVG" :key="key + 'track'" v-bind:x1="tracker.start.x" v-bind:y1="tracker.start.y" v-bind:x2="tracker.end.x" v-bind:y2="tracker.end.y" style="stroke:rgb(255,0,0);stroke-width:1;stroke-dasharray:5" />
+      <path v-if="customCoords[1]" v-bind:d="shapeSVG" style="stroke:blue;stroke-width:1.5" v-bind:class="[drawingMode ? (dimMode ? 'fillShape' : 'noFill') : 'fillShape']"/>
+      <circle v-for="(nodeVar, key) in nodeSVG" :key="key + 'node'" v-bind:cx="nodeVar.x" v-bind:cy="nodeVar.y" r="3" stroke-width="0" v-bind:class="[activeCoord === key ? 'activeNode' : 'node']"/>
+      <text v-for="(nodeVar, key) in nodeSVG" :key="key + 'nodeText'" v-bind:x="nodeVar.x + 2" v-bind:y="nodeVar.y + 2">{{key}}</text>
+      <line v-for="(dimNode, key) in dimHover" :key="key + 'dim'" v-bind:stroke-dasharray="(((dimNode.length * grid.scale) - 50) / 2) + ', 50'" v-bind:x1="dimNode.x1" v-bind:y1="dimNode.y1" v-bind:x2="dimNode.x2" v-bind:y2="dimNode.y2" v-bind:class="[dimNode.length * grid.scale > 70 ? 'dimArrows' : 'dimArrowsReverse']"/>
+      <text v-for="(dimNode, key) in dimHover" :key="key + 'dimText'" v-bind:x="(dimNode.x1 + dimNode.x2) / 2" v-bind:y="((dimNode.y1 + dimNode.y2) / 2) + 6" text-anchor="middle">{{dimNode.length}}</text>
+      <rect v-if="hoverCoord.active" v-bind:x="hoverSVG.x - 2" v-bind:y="hoverSVG.y - 2" width="4" height="4" stroke="black" stroke-width="0" fill="black"/>
+      <rect v-if="hoverCoord.active" v-bind:x="cursorSVG.x - 3" v-bind:y="cursorSVG.y - 3" width="6" height="6" stroke="black" stroke-width="0" fill="black"/>
+      <line v-if="hoverCoord.active" v-bind:x1="cursorSVG.x - 35" v-bind:y1="cursorSVG.y" v-bind:x2="cursorSVG.x + 35" v-bind:y2="cursorSVG.y" stroke="black" stroke-width="1.5"/>
+      <line v-if="hoverCoord.active" v-bind:x1="cursorSVG.x" v-bind:y1="cursorSVG.y - 35" v-bind:x2="cursorSVG.x" v-bind:y2="cursorSVG.y + 35" stroke="black" stroke-width="1.5"/>
     </svg>
   </div>
 </template>
@@ -36,8 +39,7 @@ export default {
   data: function () {
     return {
       canvasSVG: {width: '', height: ''},
-      dimCount: 1,
-      dimMouse: {'x': '', 'y': ''}
+      dimCount: 1
     }
   },
   computed: {
@@ -47,22 +49,98 @@ export default {
       drawCanvasTrigger: 'drawCanvasTrigger',
       drawingMode: 'drawingMode',
       hoverCoord: 'hoverCoord',
+      cursorCoord: 'cursorCoord',
       grid: 'grid',
       dimensions: 'dimensions',
       dimMode: 'dimMode'
     }),
+    hoverSVG () {
+      var mouseX = this.cursorCoord.x
+      var mouseY = this.cursorCoord.y
+      var grid = this.grid.size
+      var nodesnap = 10 / this.grid.scale
+      if (this.grid.snap === true) {
+        mouseX = Math.round(mouseX / grid) * grid
+        mouseY = Math.round(mouseY / grid) * grid
+      }
+
+      if (this.grid.ortho && this.customCoords['1']) {
+        var index = Object.keys(this.customCoords).length
+        var x1 = this.customCoords[index].x
+        var y1 = this.customCoords[index].y
+        if (Math.abs(mouseX - x1) > Math.abs(mouseY - y1)) {
+          mouseY = y1
+        } else {
+          mouseX = x1
+        }
+      }
+
+      if (this.customCoords['1'] && (mouseX > (this.customCoords['1']['x'] - nodesnap) && mouseX < (this.customCoords['1']['x'] + nodesnap)) && (mouseY > (this.customCoords['1']['y'] - nodesnap) && mouseY < (this.customCoords['1']['y'] + nodesnap))) {
+        mouseX = this.customCoords['1']['x']
+        mouseY = this.customCoords['1']['y']
+      }
+
+      if (this.grid.track) {
+        for (var point in this.customCoords) {
+          if (this.customCoords.hasOwnProperty(point)) {
+            if (mouseX > (this.customCoords[point]['x'] - nodesnap) && mouseX < (this.customCoords[point]['x'] + nodesnap)) {
+              mouseX = this.customCoords[point]['x']
+            }
+            if (mouseY > (this.customCoords[point]['y'] - nodesnap) && mouseY < (this.customCoords[point]['y'] + nodesnap)) {
+              mouseY = this.customCoords[point]['y']
+            }
+          }
+        }
+      }
+
+      var coord = {'x': this.grid.scale * mouseX, 'y': this.grid.scale * mouseY}
+      return coord
+    },
     trackSVG () {
       var track = {}
-      if (this.grid.tracknode.x > 0) {
-        track[1] = {'start': {'x': this.grid.scale * this.customCoords[this.grid.tracknode.x].x, 'y': this.grid.scale * this.customCoords[this.grid.tracknode.x].y}, 'end': {'x': this.grid.scale * this.hoverCoord.x, 'y': this.grid.scale * this.hoverCoord.y}}
+      var mouseX = this.hoverSVG.x
+      var mouseY = this.hoverSVG.y
+
+      var closest = {
+        keyX: null,
+        diffX: null,
+        keyY: null,
+        diffY: null
       }
-      if (this.grid.tracknode.y > 0) {
-        track[2] = {'start': {'x': this.grid.scale * this.customCoords[this.grid.tracknode.y].x, 'y': this.grid.scale * this.customCoords[this.grid.tracknode.y].y}, 'end': {'x': this.grid.scale * this.hoverCoord.x, 'y': this.grid.scale * this.hoverCoord.y}}
+      var diffX = ''
+      var diffY = ''
+
+      if (this.grid.track) {
+        for (var point in this.customCoords) {
+          if (this.customCoords.hasOwnProperty(point)) {
+            if (mouseX === this.customCoords[point]['x']) {
+              diffX = Math.abs(this.customCoords[point]['y'] - mouseY)
+              if (!closest.keyX || diffX < closest.diffX) {
+                closest.keyX = point
+                closest.diffX = diffX
+              }
+            }
+            if (mouseY === this.customCoords[point]['y']) {
+              diffY = Math.abs(this.customCoords[point]['x'] - mouseX)
+              if (!closest.keyY || diffY < closest.diffY) {
+                closest.keyY = point
+                closest.diffY = diffY
+              }
+            }
+          }
+        }
+      }
+
+      if (closest.keyY && this.hoverCoord.active) {
+        track[1] = {'start': {'x': this.grid.scale * this.customCoords[closest.keyY].x, 'y': this.grid.scale * this.customCoords[closest.keyY].y}, 'end': {'x': this.grid.scale * this.hoverSVG.x, 'y': this.grid.scale * this.hoverSVG.y}}
+      }
+      if (closest.keyX && this.hoverCoord.active) {
+        track[2] = {'start': {'x': this.grid.scale * this.customCoords[closest.keyX].x, 'y': this.grid.scale * this.customCoords[closest.keyX].y}, 'end': {'x': this.grid.scale * this.hoverSVG.x, 'y': this.grid.scale * this.hoverSVG.y}}
       }
       return track
     },
-    hoverSVG () {
-      var coord = {'x': this.grid.scale * this.hoverCoord.x, 'y': this.grid.scale * this.hoverCoord.y}
+    cursorSVG () {
+      var coord = {'x': this.grid.scale * this.cursorCoord.x, 'y': this.grid.scale * this.cursorCoord.y}
       return coord
     },
     shapeSVG () {
@@ -76,7 +154,7 @@ export default {
         }
       }
       if (this.hoverCoord.active && !this.dimMode) {
-        shape += ' L' + (this.grid.scale * Number(this.hoverCoord.x)) + ' ' + this.grid.scale * (Number(this.hoverCoord.y))
+        shape += ' L' + (this.grid.scale * Number(this.hoverSVG.x)) + ' ' + this.grid.scale * (Number(this.hoverSVG.y))
       }
       if (!this.drawingMode || this.dimMode) {
         shape += ' Z'
@@ -98,6 +176,20 @@ export default {
       var dimHover = JSON.parse(JSON.stringify(this.dimensions))
       var scale = this.grid.scale
       var last = 1
+      var mouseX = this.hoverSVG.x
+      var mouseY = this.hoverSVG.y
+      var nodesnap = 10 / this.grid.scale
+
+      if (this.dimMode && this.dimCount === -1) {
+        var dimN = Object.keys(this.dimensions).length
+        if (mouseX > (this.dimensions[dimN]['x1'] - nodesnap) && mouseX < (this.dimensions[dimN]['x1'] + nodesnap)) {
+          mouseX = this.dimensions[dimN]['x1']
+        }
+        if (mouseY > (this.dimensions[dimN]['y1'] - nodesnap) && mouseY < (this.dimensions[dimN]['y1'] + nodesnap)) {
+          mouseY = this.dimensions[dimN]['y1']
+        }
+      }
+
       if (this.dimensions) {
         last = Object.keys(this.dimensions).length
       }
@@ -119,8 +211,8 @@ export default {
         }
       }
       if (this.dimCount === -1) {
-        dimHover[last]['x2'] = scale * this.dimMouse.x
-        dimHover[last]['y2'] = scale * this.dimMouse.y
+        dimHover[last]['x2'] = scale * mouseX
+        dimHover[last]['y2'] = scale * mouseY
         a = dimHover[last]['x1'] - dimHover[last]['x2']
         b = dimHover[last]['y1'] - dimHover[last]['y2']
         length = Math.round((Math.sqrt(a * a + b * b) / scale) * 100) / 100
@@ -132,7 +224,7 @@ export default {
   watch: {
     drawCanvasTrigger: function () {
       this.setCanvasSize()
-      this.drawCanvas(this.activeCoord)
+      this.drawCanvas()
     }
   },
   methods: {
@@ -151,7 +243,7 @@ export default {
       this.canvasSVG.width = coordPayload.x
       this.canvasSVG.height = coordPayload.y
     },
-    drawCanvas: function (index) {
+    drawCanvas: function () {
       var canvas = document.getElementById('canvas')
       var gridctx = canvas.getContext('2d')
       gridctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -248,86 +340,14 @@ export default {
     },
     hoverOver (e) {
       if (this.drawingMode) {
-        this.$store.commit('RESET_TRACKER')
         var canvas = document.getElementById('canvas')
         var BB = canvas.getBoundingClientRect()
         var scale = this.grid.scale
-        var grid = this.grid.size
         var mouseX = Math.round(((parseInt(e.clientX - BB.left)) / scale) * 100) / 100
         var mouseY = Math.round(((parseInt(e.clientY - BB.top)) / scale) * 100) / 100
-        var nodesnap = 10 / scale
 
-        if (this.grid.snap === true) {
-          mouseX = Math.round(mouseX / grid) * grid
-          mouseY = Math.round(mouseY / grid) * grid
-        }
-
-        if (this.grid.ortho && Object.keys(this.customCoords).length) {
-          var index = Object.keys(this.customCoords).length
-          var x1 = this.customCoords[index].x
-          var y1 = this.customCoords[index].y
-          if (Math.abs(mouseX - x1) > Math.abs(mouseY - y1)) {
-            mouseY = y1
-          } else {
-            mouseX = x1
-          }
-        }
-
-        if (this.customCoords['1'] && (mouseX > (this.customCoords['1']['x'] - nodesnap) && mouseX < (this.customCoords['1']['x'] + nodesnap)) && (mouseY > (this.customCoords['1']['y'] - nodesnap) && mouseY < (this.customCoords['1']['y'] + nodesnap))) {
-          mouseX = this.customCoords['1']['x']
-          mouseY = this.customCoords['1']['y']
-        }
-
-        var closest = {
-          keyX: null,
-          diffX: null,
-          keyY: null,
-          diffY: null
-        }
-        var diffX = ''
-        var diffY = ''
-
-        if (this.grid.track) {
-          var trackPayload = {}
-          for (var point in this.customCoords) {
-            if (this.customCoords.hasOwnProperty(point)) {
-              if (mouseX > (this.customCoords[point]['x'] - nodesnap) && mouseX < (this.customCoords[point]['x'] + nodesnap)) {
-                mouseX = this.customCoords[point]['x']
-                diffX = Math.abs(this.customCoords[point]['y'] - mouseY)
-                if (!closest.keyX || diffX < closest.diffX) {
-                  closest.keyX = point
-                  closest.diffX = diffX
-                }
-              }
-              if (mouseY > (this.customCoords[point]['y'] - nodesnap) && mouseY < (this.customCoords[point]['y'] + nodesnap)) {
-                mouseY = this.customCoords[point]['y']
-                diffY = Math.abs(this.customCoords[point]['x'] - mouseX)
-                if (!closest.keyY || diffY < closest.diffY) {
-                  closest.keyY = point
-                  closest.diffY = diffY
-                }
-              }
-            }
-          }
-          trackPayload = {'point': closest.keyX, 'axis': 'y'}
-          this.$store.commit('SET_TRACKER', trackPayload)
-          trackPayload = {'point': closest.keyY, 'axis': 'x'}
-          this.$store.commit('SET_TRACKER', trackPayload)
-        }
-        if (this.dimMode && this.dimCount === -1) {
-          var dimN = Object.keys(this.dimensions).length
-          if (mouseX > (this.dimensions[dimN]['x1'] - nodesnap) && mouseX < (this.dimensions[dimN]['x1'] + nodesnap)) {
-            mouseX = this.dimensions[dimN]['x1']
-          }
-          if (mouseY > (this.dimensions[dimN]['y1'] - nodesnap) && mouseY < (this.dimensions[dimN]['y1'] + nodesnap)) {
-            mouseY = this.dimensions[dimN]['y1']
-          }
-        }
-
-        var coordPayload = {'x': mouseX, 'y': mouseY}
-        this.$store.commit('SET_HOVER_COORD', coordPayload)
-        this.dimMouse.x = mouseX
-        this.dimMouse.y = mouseY
+        var cursorPayload = {'x': mouseX, 'y': mouseY}
+        this.$store.commit('SET_CURSOR_COORD', cursorPayload)
         this.$store.commit('TOGGLE_HOVER', true)
       }
     },
@@ -360,7 +380,7 @@ export default {
   &.active {
     border: 1px solid $third-color;
     canvas {
-      cursor: crosshair;
+      cursor: none;
     }
   }
   &.scrollable {

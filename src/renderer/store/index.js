@@ -24,6 +24,7 @@ export default new Vuex.Store({
     customProp: {'area': '', 'plasticNA': '', 'elasticNA': ''},
     canvasSize: {'x': 0, 'y': 0},
     hoverCoord: {'active': false, 'x': 0, 'y': 0},
+    cursorCoord: {'x': 0, 'y': 0},
     propertiesPane: {width: 200, resizing: false},
     grid: {'size': 20, 'units': 'mm', 'snap': false, 'ortho': false, 'scale': 1, 'track': true, 'tracknode': {'x': 0, 'y': 0}},
     drawAlongDist: {'dist': '', 'active': false, 'angle': '', 'angleActive': false},
@@ -105,6 +106,10 @@ export default new Vuex.Store({
       state.hoverCoord.x = coordPayload.x
       state.hoverCoord.y = coordPayload.y
     },
+    [types.SET_CURSOR_COORD] (state, cursorPayload) {
+      state.cursorCoord.x = cursorPayload.x
+      state.cursorCoord.y = cursorPayload.y
+    },
     [types.TOGGLE_PROP_RESIZE] (state, boolPayload) {
       state.propertiesPane.resizing = boolPayload
     },
@@ -163,8 +168,8 @@ export default new Vuex.Store({
       var y1 = state.customCoords[index].y
       var x3 = ''
       var y3 = ''
-      var x2 = state.hoverCoord.x
-      var y2 = state.hoverCoord.y
+      var x2 = state.cursorCoord.x
+      var y2 = state.cursorCoord.y
       var degrees = state.drawAlongDist.angle
       var length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))
       var newLength = state.drawAlongDist.dist
