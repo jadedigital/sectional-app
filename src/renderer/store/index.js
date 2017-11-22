@@ -168,8 +168,8 @@ export default new Vuex.Store({
       var y1 = state.customCoords[index].y
       var x3 = ''
       var y3 = ''
-      var x2 = state.cursorCoord.x
-      var y2 = state.cursorCoord.y
+      var x2 = state.hoverCoord.x
+      var y2 = state.hoverCoord.y
       var degrees = state.drawAlongDist.angle
       var length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))
       var newLength = state.drawAlongDist.dist
