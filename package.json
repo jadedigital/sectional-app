@@ -1,9 +1,9 @@
 {
-  "name": "sectional-app",
-  "version": "0.0.0",
+  "name": "navier",
+  "version": "0.1.0",
   "author": "Aaron Greene <agreene@jadedigital.ca>",
-  "description": "A database for structural steel sections",
-  "license": null,
+  "description": "A structural steel section property calculator and database",
+  "license": "Apache-2.0",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
@@ -58,7 +58,6 @@
   },
   "dependencies": {
     "axios": "^0.16.1",
-    "electron": "^1.7.9",
     "electron-json-storage": "^3.0.7",
     "firebase": "^4.2.0",
     "font-awesome": "^4.7.0",
@@ -89,6 +88,7 @@
     "css-loader": "^0.28.4",
     "del": "^2.2.1",
     "devtron": "^1.1.0",
+    "electron": "^1.7.9",
     "electron-builder": "^19.10.0",
     "electron-debug": "^1.1.0",
     "electron-devtools-installer": "^2.0.1",
