@@ -94,6 +94,7 @@ export default {
       }
 
       var coord = {'x': this.grid.scale * mouseX, 'y': this.grid.scale * mouseY}
+      this.$store.commit('SET_HOVER_COORD', coord)
       return coord
     },
     trackSVG () {
@@ -113,15 +114,15 @@ export default {
       if (this.grid.track) {
         for (var point in this.customCoords) {
           if (this.customCoords.hasOwnProperty(point)) {
-            if (mouseX === this.customCoords[point]['x']) {
-              diffX = Math.abs(this.customCoords[point]['y'] - mouseY)
+            if (mouseX === this.grid.scale * this.customCoords[point]['x']) {
+              diffX = Math.abs(this.grid.scale * (this.customCoords[point]['y'] - mouseY))
               if (!closest.keyX || diffX < closest.diffX) {
                 closest.keyX = point
                 closest.diffX = diffX
               }
             }
-            if (mouseY === this.customCoords[point]['y']) {
-              diffY = Math.abs(this.customCoords[point]['x'] - mouseX)
+            if (mouseY === this.grid.scale * this.customCoords[point]['y']) {
+              diffY = Math.abs(this.grid.scale * (this.customCoords[point]['x'] - mouseX))
               if (!closest.keyY || diffY < closest.diffY) {
                 closest.keyY = point
                 closest.diffY = diffY
@@ -132,10 +133,10 @@ export default {
       }
 
       if (closest.keyY && this.hoverCoord.active) {
-        track[1] = {'start': {'x': this.grid.scale * this.customCoords[closest.keyY].x, 'y': this.grid.scale * this.customCoords[closest.keyY].y}, 'end': {'x': this.grid.scale * this.hoverSVG.x, 'y': this.grid.scale * this.hoverSVG.y}}
+        track[1] = {'start': {'x': this.grid.scale * this.customCoords[closest.keyY].x, 'y': this.grid.scale * this.customCoords[closest.keyY].y}, 'end': {'x': this.hoverSVG.x, 'y': this.hoverSVG.y}}
       }
       if (closest.keyX && this.hoverCoord.active) {
-        track[2] = {'start': {'x': this.grid.scale * this.customCoords[closest.keyX].x, 'y': this.grid.scale * this.customCoords[closest.keyX].y}, 'end': {'x': this.grid.scale * this.hoverSVG.x, 'y': this.grid.scale * this.hoverSVG.y}}
+        track[2] = {'start': {'x': this.grid.scale * this.customCoords[closest.keyX].x, 'y': this.grid.scale * this.customCoords[closest.keyX].y}, 'end': {'x': this.hoverSVG.x, 'y': this.hoverSVG.y}}
       }
       return track
     },
@@ -154,7 +155,7 @@ export default {
         }
       }
       if (this.hoverCoord.active && !this.dimMode) {
-        shape += ' L' + (this.grid.scale * Number(this.hoverSVG.x)) + ' ' + this.grid.scale * (Number(this.hoverSVG.y))
+        shape += ' L' + (Number(this.hoverSVG.x)) + ' ' + (Number(this.hoverSVG.y))
       }
       if (!this.drawingMode || this.dimMode) {
         shape += ' Z'
