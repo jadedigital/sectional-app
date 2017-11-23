@@ -23,8 +23,8 @@
     "install-wsl": "npm install && npm uninstall electron && export npm_config_platform=win32 && npm install electron && unset npm_config_platform"
   },
   "build": {
-    "productName": "sectional-app",
-    "appId": "org.simulatedgreg.electron-vue",
+    "productName": "navier",
+    "appId": "com.electron.navier",
     "directories": {
       "output": "build"
     },
