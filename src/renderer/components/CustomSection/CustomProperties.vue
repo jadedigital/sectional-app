@@ -17,6 +17,7 @@
         <span ><a class="nav-group-item">Iu: <span class="value">{{properties.iu | exponent}} mm<sup>2</sup></span></a></span>
         <span ><a class="nav-group-item">Iv: <span class="value">{{properties.iv | exponent}} mm<sup>2</sup></span></a></span>
         <span ><a class="nav-group-item">Theta: <span class="value">{{properties.theta | exponent}} mm<sup>2</sup></span></a></span>
+        <span ><a class="nav-group-item">Plastic NA: <span class="value">{{properties.pna | exponent}} mm</span></a></span>
       </div>
     </div>
   </div>
@@ -66,7 +67,7 @@ export default {
             YD = Y2 - Y1
             YSUM = Y1 + Y2
             Area = Area + XD * (YSUM / 2)
-            AX = AX - XD / 2 * (Math.pow(Y1, 2) + YD * (Y1 + YD / 3))
+            AX = AX + XD / 2 * (Math.pow(Y1, 2) + YD * (Y1 + YD / 3))
             AY = AY - YD / 2 * (Math.pow(X1, 2) + XD * (X1 + XD / 3))
             IXO = IXO + XD * (Math.pow(Y1, 3) / 3 + Math.pow(YD, 3) / 36 + YD / 2 * Math.pow((Y1 + YD / 3), 2))
             IYO = IYO - YD * (Math.pow(X1, 3) / 3 + Math.pow(XD, 3) / 36 + XD / 2 * Math.pow((X1 + XD / 3), 2))
@@ -77,7 +78,7 @@ export default {
         var Ybar = AX / Area
         var IXC = IXO - Area * Math.pow(Ybar, 2)
         var IYC = IYO - Area * Math.pow(Xbar, 2)
-        var IXYC = IXYO - Area * Xbar * Ybar
+        var IXYC = IXYO - (Area * Xbar * Ybar)
         var IXYORel = 0
         var IXYCRel = 0
         var RelTol = 0.000000000001
@@ -101,7 +102,7 @@ export default {
         } else {
           IXYCRel = IXYC / IYC
         }
-        if (Math.abs(IXYCRel) < RelTol) {
+        if (Math.abs(IXYCRel) > RelTol) {
           Theta = 0.5 * (this.Atn2((IXC - IYC), 2 * IXYC))
         } else {
           IXYC = 0
@@ -110,6 +111,45 @@ export default {
 
         Theta = Theta * 180 / Math.PI
       }
+      let arr = Object.values(obj)
+      let min = Math.min(...arr)
+      let max = Math.max(...arr)
+      var PNA = 0
+      var PX1 = 0
+      var PX2 = 0
+      var PY1 = 0
+      var PY2 = 0
+      var PXD = 0
+      var PYSUM = 0
+      var PArea = 0
+      var s = 10
+      var maxY = 390
+      var minY = 90
+      for (var p = minY; p < maxY * s; p++) {
+        for (var i = 1; i <= length; i++) {
+          if (length > 2) {
+            var i2 = i + 1
+            if (i === length) {
+              i2 = 1
+            }
+            PX1 = Number(this.customCoords[String(i)]['x'])
+            PX2 = Number(this.customCoords[String(i2)]['x'])
+            PY1 = Math.min(Number(this.customCoords[String(i)]['y']), p / s)
+            PY2 = Math.min(Number(this.customCoords[String(i2)]['y']), p / s)
+
+            PXD = PX2 - PX1
+            PYSUM = PY1 + PY2
+            PArea = PArea + PXD * (PYSUM / 2)
+          }
+        }
+        console.log('Loop ' + p + ' - ' + PArea)
+        if (Math.abs(PArea) >= Math.abs(Area) / 2) {
+          PNA = p / s
+          break
+        }
+        PArea = 0
+      }
+
       properties.area = Math.abs(Area)
       properties.ax = Math.abs(AX)
       properties.ay = Math.abs(AY)
@@ -124,6 +164,7 @@ export default {
       properties.iu = Math.abs(IU)
       properties.iv = Math.abs(IV)
       properties.theta = Math.abs(Theta)
+      properties.pna = Math.abs(PNA)
       return properties
     }
   },
@@ -134,7 +175,7 @@ export default {
     Atn2 (DX, DY) {
       var Atn2 = ''
       if (DY < 0) {
-        Atn2 = -Atn2(DX, -DY)
+        Atn2 = -1 * this.Atn2(DX, -DY)
       } else if (DX < 0) {
         Atn2 = Math.PI - Math.atan(-DY / DX)
       } else if (DX > 0) {
@@ -149,7 +190,7 @@ export default {
   },
   filters: {
     exponent: function (value) {
-      if (isNaN(value) || value < 10000) {
+      if (isNaN(value) || (value < 10000 && value > -10000)) {
         return value
       } else {
         return value.toExponential(3)
