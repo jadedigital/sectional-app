@@ -18,13 +18,24 @@
           <polyline points="2 6, 10 6, 22 6" style="fill: none; stroke: #000000;" />
         </marker>
       </defs>
+      <!-- tracking lines -->
       <line v-for="(tracker, key) in trackSVG" :key="key + 'track'" v-bind:x1="tracker.start.x" v-bind:y1="tracker.start.y" v-bind:x2="tracker.end.x" v-bind:y2="tracker.end.y" style="stroke:rgb(255,0,0);stroke-width:1;stroke-dasharray:5" />
+      <!-- U/V axis -->
+      <line v-if="!drawingMode" v-bind:x1="grid.scale * customProp.xc" v-bind:y1="0" v-bind:x2="grid.scale * customProp.xc" v-bind:y2="canvasSVG.height" style="stroke:black;stroke-width:1;stroke-dasharray:15 5" />
+      <line v-if="!drawingMode" v-bind:x1="0" v-bind:y1="grid.scale * customProp.yc" v-bind:x2="canvasSVG.width" v-bind:y2="grid.scale * customProp.yc" style="stroke:black;stroke-width:1;stroke-dasharray:15 5" />
+      <text v-if="!drawingMode" v-bind:x="grid.scale * customProp.xc + 5" v-bind:y="15">V</text>
+      <text v-if="!drawingMode" v-bind:x="canvasSVG.width / Math.max(grid.scale, 1) - 25" v-bind:y="(customProp.yc * grid.scale) + 15">U</text>
+      <!-- shape -->
       <path v-if="customCoords[1]" v-bind:d="shapeSVG" style="stroke:blue;stroke-width:1.5" v-bind:class="[drawingMode ? (dimMode ? 'fillShape' : 'noFill') : 'fillShape']"/>
+      <!-- nodes -->
       <circle v-for="(nodeVar, key) in nodeSVG" :key="key + 'node'" v-bind:cx="nodeVar.x" v-bind:cy="nodeVar.y" r="3" stroke-width="0" v-bind:class="[activeCoord === key ? 'activeNode' : 'node']"/>
       <text v-for="(nodeVar, key) in nodeSVG" :key="key + 'nodeText'" v-bind:x="nodeVar.x + 2" v-bind:y="nodeVar.y + 2">{{key}}</text>
+      <!-- dimensions -->
       <line v-for="(dimNode, key) in dimHover" :key="key + 'dim'" v-bind:stroke-dasharray="(((dimNode.length * grid.scale) - 50) / 2) + ', 50'" v-bind:x1="dimNode.x1" v-bind:y1="dimNode.y1" v-bind:x2="dimNode.x2" v-bind:y2="dimNode.y2" v-bind:class="[dimNode.length * grid.scale > 70 ? 'dimArrows' : 'dimArrowsReverse']"/>
       <text v-for="(dimNode, key) in dimHover" :key="key + 'dimText'" v-bind:x="(dimNode.x1 + dimNode.x2) / 2" v-bind:y="((dimNode.y1 + dimNode.y2) / 2) + 6" text-anchor="middle">{{dimNode.length}}</text>
+      <!-- path node under cursor -->
       <rect v-if="hoverCoord.active" v-bind:x="hoverSVG.x - 2" v-bind:y="hoverSVG.y - 2" width="4" height="4" stroke="black" stroke-width="0" fill="black"/>
+      <!-- cursor -->
       <rect v-if="hoverCoord.active" v-bind:x="cursorSVG.x - 3" v-bind:y="cursorSVG.y - 3" width="6" height="6" stroke="black" stroke-width="0" fill="black"/>
       <line v-if="hoverCoord.active" v-bind:x1="cursorSVG.x - 35" v-bind:y1="cursorSVG.y" v-bind:x2="cursorSVG.x + 35" v-bind:y2="cursorSVG.y" stroke="black" stroke-width="1.5"/>
       <line v-if="hoverCoord.active" v-bind:x1="cursorSVG.x" v-bind:y1="cursorSVG.y - 35" v-bind:x2="cursorSVG.x" v-bind:y2="cursorSVG.y + 35" stroke="black" stroke-width="1.5"/>
@@ -52,8 +63,15 @@ export default {
       cursorCoord: 'cursorCoord',
       grid: 'grid',
       dimensions: 'dimensions',
-      dimMode: 'dimMode'
+      dimMode: 'dimMode',
+      customProp: 'customProp'
     }),
+    origin () {
+      var origin = {}
+      origin.x = this.canvasSVG.width / 2
+      origin.y = this.canvasSVG.height / 2
+      return origin
+    },
     hoverSVG () {
       var mouseX = this.cursorCoord.x
       var mouseY = this.cursorCoord.y
@@ -132,11 +150,24 @@ export default {
         }
       }
 
+      var last = Object.keys(this.customCoords).length
       if (closest.keyY && this.hoverCoord.active) {
-        track[1] = {'start': {'x': this.grid.scale * this.customCoords[closest.keyY].x, 'y': this.grid.scale * this.customCoords[closest.keyY].y}, 'end': {'x': this.hoverSVG.x, 'y': this.hoverSVG.y}}
+        if (Number(closest.keyY) === last && this.hoverSVG.x > this.grid.scale * this.customCoords[last].x) {
+          track[1] = {'start': {'x': this.hoverSVG.x, 'y': this.hoverSVG.y}, 'end': {'x': this.canvasSVG.width, 'y': this.hoverSVG.y}}
+        } else if (Number(closest.keyY) === last && this.hoverSVG.x < this.grid.scale * this.customCoords[last].x) {
+          track[1] = {'start': {'x': this.hoverSVG.x, 'y': this.hoverSVG.y}, 'end': {'x': 0, 'y': this.hoverSVG.y}}
+        } else {
+          track[1] = {'start': {'x': this.grid.scale * this.customCoords[closest.keyY].x, 'y': this.grid.scale * this.customCoords[closest.keyY].y}, 'end': {'x': this.hoverSVG.x, 'y': this.hoverSVG.y}}
+        }
       }
       if (closest.keyX && this.hoverCoord.active) {
-        track[2] = {'start': {'x': this.grid.scale * this.customCoords[closest.keyX].x, 'y': this.grid.scale * this.customCoords[closest.keyX].y}, 'end': {'x': this.hoverSVG.x, 'y': this.hoverSVG.y}}
+        if (Number(closest.keyX) === last && this.hoverSVG.y > this.grid.scale * this.customCoords[last].y) {
+          track[2] = {'start': {'x': this.hoverSVG.x, 'y': this.hoverSVG.y}, 'end': {'x': this.hoverSVG.x, 'y': this.canvasSVG.height}}
+        } else if (Number(closest.keyX) === last && this.hoverSVG.y < this.grid.scale * this.customCoords[last].y) {
+          track[2] = {'start': {'x': this.hoverSVG.x, 'y': this.hoverSVG.y}, 'end': {'x': this.hoverSVG.x, 'y': 0}}
+        } else {
+          track[2] = {'start': {'x': this.grid.scale * this.customCoords[closest.keyX].x, 'y': this.grid.scale * this.customCoords[closest.keyX].y}, 'end': {'x': this.hoverSVG.x, 'y': this.hoverSVG.y}}
+        }
       }
       return track
     },
