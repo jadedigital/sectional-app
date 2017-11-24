@@ -21,7 +21,7 @@ export default new Vuex.Store({
     drawCanvasTrigger: 1,
     activeCoord: -1,
     drawingMode: false,
-    customProp: {'area': '', 'plasticNA': '', 'elasticNA': ''},
+    customProp: {'area': '', 'xc': '', 'yc': ''},
     canvasSize: {'x': 0, 'y': 0},
     hoverCoord: {'active': false, 'x': 0, 'y': 0},
     cursorCoord: {'x': 0, 'y': 0},
@@ -218,18 +218,40 @@ export default new Vuex.Store({
       var Area = 0
       var length = Object.keys(state.customCoords).length
 
+      var X1 = ''
+      var X2 = ''
+      var Y1 = ''
+      var Y2 = ''
+      var XD = ''
+      var YD = ''
+      var YSUM = ''
+      var AX = ''
+      var AY = ''
       for (var n = 1; n <= length; n++) {
         if (length > 2) {
           var n2 = n + 1
           if (n === length) {
             n2 = 1
           }
-          var XD = Number(state.customCoords[String(n2)]['x']) - Number(state.customCoords[String(n)]['x'])
-          var Ysum = Number(state.customCoords[String(n2)]['y']) + Number(state.customCoords[String(n)]['y'])
-          Area = Area + XD * (Ysum / 2)
+
+          X1 = Number(state.customCoords[String(n)]['x'])
+          X2 = Number(state.customCoords[String(n2)]['x'])
+          Y1 = Number(state.customCoords[String(n)]['y'])
+          Y2 = Number(state.customCoords[String(n2)]['y'])
+
+          XD = X2 - X1
+          YD = Y2 - Y1
+          YSUM = Y1 + Y2
+          Area = Area + XD * (YSUM / 2)
+          AX = AX - XD / 2 * (Math.pow(Y1, 2) + YD * (Y1 + YD / 3))
+          AY = AY - YD / 2 * (Math.pow(X1, 2) + XD * (X1 + XD / 3))
         }
       }
+      var Xbar = AY / Area
+      var Ybar = AX / Area
       state.customProp.area = Math.abs(Area)
+      state.customProp.xc = Math.abs(Xbar)
+      state.customProp.yc = Math.abs(Ybar)
     }
   },
   actions,
