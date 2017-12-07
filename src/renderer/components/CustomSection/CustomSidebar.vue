@@ -73,6 +73,7 @@ export default {
       this.$store.commit('ADD_COORD', payloadData)
       this.coordx = ''
       this.coordy = ''
+      this.$store.commit('CALCULATE_PROP')
     },
     updateCoord (index, e, axis) {
       var payloadData = {'index': index, 'value': e.target.value, 'axis': axis}
