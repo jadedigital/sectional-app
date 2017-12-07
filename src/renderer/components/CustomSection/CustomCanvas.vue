@@ -21,10 +21,12 @@
       <!-- tracking lines -->
       <line v-for="(tracker, key) in trackSVG" :key="key + 'track'" v-bind:x1="tracker.start.x" v-bind:y1="tracker.start.y" v-bind:x2="tracker.end.x" v-bind:y2="tracker.end.y" style="stroke:rgb(255,0,0);stroke-width:1;stroke-dasharray:5" />
       <!-- U/V axis -->
-      <line v-if="!drawingMode" v-bind:x1="grid.scale * customProp.xc" v-bind:y1="0" v-bind:x2="grid.scale * customProp.xc" v-bind:y2="canvasSVG.height" style="stroke:black;stroke-width:1;stroke-dasharray:15 5" />
-      <line v-if="!drawingMode" v-bind:x1="0" v-bind:y1="grid.scale * customProp.yc" v-bind:x2="canvasSVG.width" v-bind:y2="grid.scale * customProp.yc" style="stroke:black;stroke-width:1;stroke-dasharray:15 5" />
-      <text v-if="!drawingMode" v-bind:x="grid.scale * customProp.xc + 5" v-bind:y="15">V</text>
-      <text v-if="!drawingMode" v-bind:x="canvasSVG.width / Math.max(grid.scale, 1) - 25" v-bind:y="(customProp.yc * grid.scale) + 15">U</text>
+      <line v-if="!drawingMode && customCoords[3]" v-bind:x1="grid.scale * localAxis.uTopX" v-bind:y1="grid.scale * localAxis.uTopY" v-bind:x2="grid.scale * localAxis.uBottomX" v-bind:y2="grid.scale * localAxis.uBottomY" style="stroke:black;stroke-width:1;stroke-dasharray:15 5" />
+      <line v-if="!drawingMode && customCoords[3]" v-bind:x1="grid.scale * localAxis.vLeftX" v-bind:y1="grid.scale * localAxis.vLeftY" v-bind:x2="grid.scale * localAxis.vRightX" v-bind:y2="grid.scale * localAxis.vRightY" style="stroke:black;stroke-width:1;stroke-dasharray:15 5" />
+      <text v-if="!drawingMode && customCoords[3]" v-bind:x="grid.scale * localAxis.uTopX + 10" v-bind:y="grid.scale * localAxis.uTopY - 10">V</text>
+      <text v-if="!drawingMode && customCoords[3]" v-bind:x="grid.scale * localAxis.vRightX + 10" v-bind:y="grid.scale * localAxis.vRightY - 10">U</text>
+      <!-- Plastic Neutral axis -->
+      <line v-if="!drawingMode && customCoords[3]" v-bind:x1="0" v-bind:y1="grid.scale * customProp.pna" v-bind:x2="canvasSVG.width" v-bind:y2="grid.scale * customProp.pna" style="stroke:black;stroke-width:1;stroke-dasharray:15 5" />
       <!-- shape -->
       <path v-if="customCoords[1]" v-bind:d="shapeSVG" style="stroke:blue;stroke-width:1.5" v-bind:class="[drawingMode ? (dimMode ? 'fillShape' : 'noFill') : 'fillShape']"/>
       <!-- nodes -->
@@ -66,6 +68,20 @@ export default {
       dimMode: 'dimMode',
       customProp: 'customProp'
     }),
+    localAxis () {
+      var axis = {}
+      var R = Math.sqrt(Math.pow(this.canvasSVG.width, 2) + Math.pow(this.canvasSVG.height, 2)) / 4
+      var theta = this.customProp.theta * Math.PI / 180
+      axis.vLeftY = this.customProp.yc - R * Math.sin(theta)
+      axis.vRightY = this.customProp.yc + R * Math.sin(theta)
+      axis.vLeftX = this.customProp.xc - R * Math.cos(theta)
+      axis.vRightX = this.customProp.xc + R * Math.cos(theta)
+      axis.uTopX = this.customProp.xc - R * Math.sin(theta)
+      axis.uBottomX = this.customProp.xc + R * Math.sin(theta)
+      axis.uTopY = this.customProp.yc + R * Math.cos(theta)
+      axis.uBottomY = this.customProp.yc - R * Math.cos(theta)
+      return axis
+    },
     origin () {
       var origin = {}
       origin.x = this.canvasSVG.width / 2
