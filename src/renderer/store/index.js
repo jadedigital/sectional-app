@@ -216,42 +216,156 @@ export default new Vuex.Store({
     },
     [types.CALCULATE_PROP] (state) {
       var Area = 0
-      var length = Object.keys(state.customCoords).length
+      var AX = 0
+      var AY = 0
+      var IXO = 0
+      var IYO = 0
+      var IXYO = 0
+      if (state.customCoords[1]) {
+        var length = Object.keys(state.customCoords).length
+        var X1 = ''
+        var X2 = ''
+        var Y1 = ''
+        var Y2 = ''
+        var XD = ''
+        var YD = ''
+        var YSUM = ''
+        var xarr = []
+        var yarr = []
 
-      var X1 = ''
-      var X2 = ''
-      var Y1 = ''
-      var Y2 = ''
-      var XD = ''
-      var YD = ''
-      var YSUM = ''
-      var AX = ''
-      var AY = ''
-      for (var n = 1; n <= length; n++) {
-        if (length > 2) {
-          var n2 = n + 1
-          if (n === length) {
-            n2 = 1
+        for (var n = 1; n <= length; n++) {
+          if (length > 2) {
+            var n2 = n + 1
+            if (n === length) {
+              n2 = 1
+            }
+
+            X1 = Number(state.customCoords[String(n)]['x'])
+            X2 = Number(state.customCoords[String(n2)]['x'])
+            Y1 = Number(state.customCoords[String(n)]['y'])
+            Y2 = Number(state.customCoords[String(n2)]['y'])
+
+            XD = X2 - X1
+            YD = Y2 - Y1
+            YSUM = Y1 + Y2
+            Area = Area + XD * (YSUM / 2)
+            AX = AX + XD / 2 * (Math.pow(Y1, 2) + YD * (Y1 + YD / 3))
+            AY = AY - YD / 2 * (Math.pow(X1, 2) + XD * (X1 + XD / 3))
+            IXO = IXO + XD * (Math.pow(Y1, 3) / 3 + Math.pow(YD, 3) / 36 + YD / 2 * Math.pow((Y1 + YD / 3), 2))
+            IYO = IYO - YD * (Math.pow(X1, 3) / 3 + Math.pow(XD, 3) / 36 + XD / 2 * Math.pow((X1 + XD / 3), 2))
+            IXYO = IXYO - Math.pow(X1, 2) * YD * (Y1 + Y2) / 4 - Math.pow(XD, 2) * Math.pow(YD, 2) / 72 - XD * YD * (2 * X1 + X2) * (2 * Y2 + Y1) / 18
           }
-
-          X1 = Number(state.customCoords[String(n)]['x'])
-          X2 = Number(state.customCoords[String(n2)]['x'])
-          Y1 = Number(state.customCoords[String(n)]['y'])
-          Y2 = Number(state.customCoords[String(n2)]['y'])
-
-          XD = X2 - X1
-          YD = Y2 - Y1
-          YSUM = Y1 + Y2
-          Area = Area + XD * (YSUM / 2)
-          AX = AX - XD / 2 * (Math.pow(Y1, 2) + YD * (Y1 + YD / 3))
-          AY = AY - YD / 2 * (Math.pow(X1, 2) + XD * (X1 + XD / 3))
+          xarr.push(Number(state.customCoords[String(n)]['x']))
+          yarr.push(Number(state.customCoords[String(n)]['y']))
         }
+        var Xbar = AY / Area
+        var Ybar = AX / Area
+        var IXC = IXO - Area * Math.pow(Ybar, 2)
+        var IYC = IYO - Area * Math.pow(Xbar, 2)
+        var IXYC = IXYO - (Area * Xbar * Ybar)
+        var IXYORel = 0
+        var IXYCRel = 0
+        var RelTol = 0.000000000001
+        var Theta = 0
+
+        if (IXC > IYC) {
+          IXYORel = IXYO / IXC
+        } else {
+          IXYORel = IXYO / IYC
+        }
+        if (Math.abs(IXYORel) < RelTol) {
+          IXYO = 0
+        }
+
+        var A = Math.sqrt((IXC - IYC) * (IXC - IYC) / 4 + Math.pow(IXYC, 2))
+        var IU = (IXC + IYC) / 2 + A
+        var IV = (IXC + IYC) / 2 - A
+
+        var ATN2 = ''
+        var ATN2sign = 1
+        var DX = (IXC - IYC)
+        var DY = (2 * IXYC)
+
+        if (DY < 0) {
+          ATN2sign = -1
+          DY = -DY
+        }
+
+        if (DX < 0) {
+          ATN2 = ATN2sign * (Math.PI - Math.atan(-DY / DX))
+        } else if (DX > 0) {
+          ATN2 = ATN2sign * (Math.atan(DY / DX))
+        } else if (DY !== 0) {
+          ATN2 = ATN2sign * (Math.PI / 2)
+        } else {
+          ATN2 = Error('div by zero')
+        }
+
+        if (IXC > IYC) {
+          IXYCRel = IXYC / IXC
+        } else {
+          IXYCRel = IXYC / IYC
+        }
+        if (Math.abs(IXYCRel) > RelTol) {
+          Theta = 0.5 * ATN2
+        } else {
+          IXYC = 0
+          Theta = 0
+        }
+
+        Theta = Theta * 180 / Math.PI
       }
-      var Xbar = AY / Area
-      var Ybar = AX / Area
+
+      let minY = Math.min(...yarr)
+      let maxY = Math.max(...yarr)
+      var PNA = 0
+      var PX1 = 0
+      var PX2 = 0
+      var PY1 = 0
+      var PY2 = 0
+      var PXD = 0
+      var PYSUM = 0
+      var PArea = 0
+      var s = 1
+      for (var p = minY; p < maxY * s; p++) {
+        for (var i = 1; i <= length; i++) {
+          if (length > 2) {
+            var i2 = i + 1
+            if (i === length) {
+              i2 = 1
+            }
+            PX1 = Number(state.customCoords[String(i)]['x'])
+            PX2 = Number(state.customCoords[String(i2)]['x'])
+            PY1 = Math.min(Number(state.customCoords[String(i)]['y']), p / s)
+            PY2 = Math.min(Number(state.customCoords[String(i2)]['y']), p / s)
+
+            PXD = PX2 - PX1
+            PYSUM = PY1 + PY2
+            PArea = PArea + PXD * (PYSUM / 2)
+          }
+        }
+        if (Math.abs(PArea) >= Math.abs(Area) / 2) {
+          PNA = p / s
+          break
+        }
+        PArea = 0
+      }
+
       state.customProp.area = Math.abs(Area)
+      state.customProp.ax = Math.abs(AX)
+      state.customProp.ay = Math.abs(AY)
+      state.customProp.ixo = Math.abs(IXO)
+      state.customProp.iyo = Math.abs(IYO)
+      state.customProp.ixyo = Math.abs(IXYO)
       state.customProp.xc = Math.abs(Xbar)
       state.customProp.yc = Math.abs(Ybar)
+      state.customProp.ixc = Math.abs(IXC)
+      state.customProp.iyc = Math.abs(IYC)
+      state.customProp.ixyc = Math.abs(IXYC)
+      state.customProp.iu = Math.abs(IU)
+      state.customProp.iv = Math.abs(IV)
+      state.customProp.theta = Math.abs(Theta)
+      state.customProp.pna = Math.abs(PNA)
     }
   },
   actions,
