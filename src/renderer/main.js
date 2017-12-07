@@ -3,6 +3,7 @@ import axios from 'axios'
 import VueFire from 'vuefire'
 import VTooltip from 'v-tooltip'
 import vueSlider from 'vue-slider-component'
+import math from 'mathjs'
 
 import App from './App'
 import router from './router'
@@ -29,6 +30,7 @@ Vue.config.productionTip = false
 Vue.use(VueFire)
 Vue.use(VTooltip, options)
 Vue.use(vueSlider)
+Vue.use(math)
 
 /* eslint-disable no-new */
 new Vue({
